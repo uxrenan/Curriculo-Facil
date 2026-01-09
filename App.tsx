@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import Editor from './components/Editor';
 import Preview from './components/Preview';
@@ -13,7 +12,7 @@ const App: React.FC = () => {
     if (data.personal.fullName) {
       document.title = `Curriculo - ${data.personal.fullName}`;
     } else {
-      document.title = "Swift Resume Builder";
+      document.title = "CVfácil - Construtor de Currículos";
     }
   }, [data.personal.fullName]);
 
@@ -62,13 +61,22 @@ const App: React.FC = () => {
 
       {/* Navbar */}
       <header className="h-16 shrink-0 bg-white border-b border-slate-200 px-6 flex items-center justify-between z-10 shadow-sm">
-        <div className="flex items-center gap-3">
-          <div className="size-10 bg-blue-600 rounded-lg flex items-center justify-center text-white shadow-lg">
-            <span className="material-symbols-outlined">description</span>
+        <div className="flex items-center gap-[12px]">
+          <div className="text-blue-600">
+            <svg viewBox="0 0 512 512" width="38" height="38" className="drop-shadow-sm">
+              <path fill="currentColor" d="M140 40h240v64h64v320H140z" opacity=".15"/>
+              <path fill="currentColor" d="M100 80h240v64h64v320H100z" opacity=".3"/>
+              <rect x="60" y="120" width="300" height="360" rx="24" fill="currentColor"/>
+              <text x="120" y="270" fill="white" fontFamily="Arial" fontWeight="900" fontSize="110">CV</text>
+              <rect x="120" y="315" width="180" height="18" rx="9" fill="white"/>
+              <rect x="120" y="355" width="180" height="18" rx="9" fill="white"/>
+              <rect x="120" y="395" width="120" height="18" rx="9" fill="white"/>
+            </svg>
           </div>
           <div>
-            <h2 className="text-slate-900 font-bold leading-none">SwiftResume</h2>
-            <p className="text-slate-500 text-[10px] uppercase font-bold tracking-tighter mt-1">Construtor em Tempo Real</p>
+            <h2 className="text-slate-900 font-bold text-2xl leading-none flex items-baseline font-geist tracking-tight">
+              CV<span className="text-blue-600">fácil</span>
+            </h2>
           </div>
         </div>
 
