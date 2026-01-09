@@ -3,45 +3,45 @@ import { ResumeData } from './types';
 
 export const INITIAL_DATA: ResumeData = {
   personal: {
-    fullName: 'Alex Morgan',
-    jobTitle: 'Product Designer Sênior',
-    email: 'alex.morgan@exemplo.com',
-    phone: '+55 (11) 98765-4321',
-    location: 'São Paulo, SP',
-    website: 'alexmorgan.design',
-    summary: 'Designer de Produto criativo e orientado a detalhes com mais de 5 anos de experiência na criação de produtos digitais centrados no usuário. Proficiente em design de UI/UX, prototipagem e sistemas de design. Habilidade em liderar pequenas equipes e colaborar com engenheiros para entregar software de alta qualidade.'
+    fullName: 'João das Neves',
+    jobTitle: 'Lorde Comandante da Patrulha da Noite',
+    email: 'joao.neves@muralha.org',
+    phone: '+7 Reinos (00) 99887-7665',
+    location: 'Castelo Negro, A Muralha',
+    website: 'o-inverno-esta-chegando.com',
+    summary: 'Líder experiente com histórico comprovado na defesa do reino contra ameaças ancestrais. Especialista em gestão de equipes diversificadas (incluindo gigantes e povos livres) e sobrevivência em climas extremos. Conhecido por não saber de nada, mas entregar resultados excepcionais sob pressão. Comprometido com a vigília eterna, sem terras, títulos ou glória pessoal.'
   },
   experiences: [
     {
       id: 'exp-1',
-      position: 'Designer Sênior',
-      company: 'TechFlow Inc.',
-      location: 'Remoto',
-      startDate: 'Jan 2021',
+      position: 'Lorde Comandante',
+      company: 'Patrulha da Noite',
+      location: 'Castelo Negro',
+      startDate: 'Jan 298 AL',
       endDate: 'Presente',
-      description: 'Liderei a equipe de design no lançamento de 3 grandes recursos de produto, resultando em um aumento de 15% na retenção de usuários. Estabeleci um novo sistema de design usado por mais de 20 designers e engenheiros.'
+      description: 'Responsável pela gestão estratégica de castelos ao longo da Muralha. Liderei a integração bem-sucedida com o Povo Livre para defesa mútua contra o Exército dos Mortos. Especialista em logística de suprimentos em condições de inverno rigoroso.'
     },
     {
       id: 'exp-2',
-      position: 'Designer de UI',
-      company: 'Estúdio Criativo',
-      location: 'São Paulo',
-      startDate: 'Jun 2018',
-      endDate: 'Dez 2020',
-      description: 'Projetei sites de marketing para mais de 15 clientes em diversos setores. Colaborei com desenvolvedores para garantir a implementação perfeita dos designs.'
+      position: 'Intendente do Comandante',
+      company: 'Patrulha da Noite',
+      location: 'Muralha de Gelo',
+      startDate: 'Mai 296 AL',
+      endDate: 'Dez 297 AL',
+      description: 'Atuei como braço direito do Lorde Comandante Jeor Mormont. Realizei incursões de reconhecimento além da Muralha e participei ativamente da Grande Patrulha, garantindo a ordem e a disciplina entre os irmãos juramentados.'
     }
   ],
   educations: [
     {
       id: 'edu-1',
-      degree: 'Bacharelado em Design Gráfico',
-      school: 'Universidade de Belas Artes',
-      location: 'São Paulo',
-      startDate: '2014',
-      endDate: '2018'
+      degree: 'Bacharelado em Estratégia e Combate',
+      school: 'Escola de Winterfell',
+      location: 'Norte',
+      startDate: '283 AL',
+      endDate: '295 AL'
     }
   ],
-  skills: ['Figma', 'Sketch', 'Adobe Creative Suite', 'HTML/CSS', 'React', 'Prototipagem', 'Pesquisa de Usuário'],
+  skills: ['Esgrima (Garralonga)', 'Liderança Sob Pressão', 'Sobrevivência no Gelo', 'Diplomacia com Gigantes', 'Adestramento de Lobos', 'Visão Estratégica', 'Resistência ao Frio'],
   theme: {
     primaryColor: '#2563eb',
     fontSize: 'medium',
