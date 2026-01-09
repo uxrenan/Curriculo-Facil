@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import Editor from './components/Editor';
 import Preview from './components/Preview';
@@ -14,10 +13,10 @@ const App: React.FC = () => {
   const [aiForm, setAiForm] = useState({ company: '', role: '', description: '' });
 
   useEffect(() => {
-    if (data.personal.fullName) {
-      document.title = `Curriculo - ${data.personal.fullName}`;
+    if (data.personal.fullName && data.personal.fullName !== 'João das Neves') {
+      document.title = `CVfácil | ${data.personal.fullName}`;
     } else {
-      document.title = "CVfácil - Construtor de Currículos";
+      document.title = "CVfácil - Gerador de currículos";
     }
   }, [data.personal.fullName]);
 
