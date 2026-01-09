@@ -47,6 +47,15 @@ export interface ResumeData {
   theme: ThemeConfig;
 }
 
+export type ToneType = 'Professional' | 'Formal' | 'Friendly' | 'Objective';
+
+export interface CoverLetterForm {
+  jobRole: string;
+  companyName: string;
+  tone: ToneType;
+  highlight: string;
+}
+
 export enum Type {
   TYPE_UNSPECIFIED = 'TYPE_UNSPECIFIED',
   STRING = 'STRING',

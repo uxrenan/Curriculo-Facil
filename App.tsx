@@ -1,6 +1,8 @@
+
 import React, { useState, useEffect } from 'react';
 import Editor from './components/Editor';
 import Preview from './components/Preview';
+import CoverLetterModal from './components/CoverLetterModal';
 import { INITIAL_DATA } from './constants';
 import { ResumeData, Type } from './types';
 import { GoogleGenAI } from "@google/genai";
@@ -9,6 +11,7 @@ const App: React.FC = () => {
   const [data, setData] = useState<ResumeData>(INITIAL_DATA);
   const [isDownloading, setIsDownloading] = useState(false);
   const [isAIModalOpen, setIsAIModalOpen] = useState(false);
+  const [isCoverLetterModalOpen, setIsCoverLetterModalOpen] = useState(false);
   const [isGenerating, setIsGenerating] = useState(false);
   const [aiForm, setAiForm] = useState({ company: '', role: '', description: '' });
 
@@ -171,6 +174,14 @@ const App: React.FC = () => {
 
         <div className="flex items-center gap-3">
           <button 
+            onClick={() => setIsCoverLetterModalOpen(true)}
+            className="flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-bold border border-slate-200 text-slate-600 bg-white hover:bg-slate-50 transition-all active:scale-95"
+          >
+            <span className="material-symbols-outlined text-[18px]">history_edu</span>
+            Carta de Apresentação
+          </button>
+
+          <button 
             onClick={() => setIsAIModalOpen(true)}
             className="flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-bold border border-blue-200 text-blue-600 bg-blue-50 hover:bg-blue-100 transition-all active:scale-95"
           >
@@ -212,6 +223,13 @@ const App: React.FC = () => {
           <Preview data={data} />
         </div>
       </main>
+
+      {/* Cover Letter Modal */}
+      <CoverLetterModal 
+        isOpen={isCoverLetterModalOpen} 
+        onClose={() => setIsCoverLetterModalOpen(false)} 
+        resumeData={data} 
+      />
 
       {/* IA Modal */}
       {isAIModalOpen && (
