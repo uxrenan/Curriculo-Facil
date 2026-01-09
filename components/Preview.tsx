@@ -53,6 +53,7 @@ const Preview: React.FC<PreviewProps> = ({ data, isExportVersion = false }) => {
           {personal.email && <span>{personal.email}</span>}
           {personal.phone && <span>{personal.phone}</span>}
           {personal.location && <span>{personal.location}</span>}
+          {personal.website && <span className="font-bold" style={{ color: theme.primaryColor }}>{personal.website}</span>}
         </div>
       </header>
       {personal.summary && (
@@ -154,12 +155,18 @@ const Preview: React.FC<PreviewProps> = ({ data, isExportVersion = false }) => {
     <div className="w-full text-center space-y-6">
       <header className="border-b-2 border-slate-900 pb-4">
         <h1 className={`${currentFontSize.h1} font-serif font-bold text-slate-900 uppercase tracking-widest`}>{personal.fullName}</h1>
-        <div className="flex justify-center gap-4 text-xs font-medium text-slate-600 mt-2">
-          <span>{personal.location}</span>
+        <div className="flex justify-center flex-wrap gap-x-4 gap-y-1 text-xs font-medium text-slate-600 mt-2">
+          {personal.location && <span>{personal.location}</span>}
           <span>•</span>
-          <span>{personal.phone}</span>
+          {personal.phone && <span>{personal.phone}</span>}
           <span>•</span>
-          <span>{personal.email}</span>
+          {personal.email && <span>{personal.email}</span>}
+          {personal.website && (
+            <>
+              <span>•</span>
+              <span className="font-bold" style={{ color: theme.primaryColor }}>{personal.website}</span>
+            </>
+          )}
         </div>
       </header>
       <div className="text-left space-y-8">
@@ -222,9 +229,10 @@ const Preview: React.FC<PreviewProps> = ({ data, isExportVersion = false }) => {
           <section className="p-4 bg-slate-50 rounded-xl">
              <h2 className="font-bold mb-3 uppercase tracking-tighter">Contato</h2>
              <div className="text-xs space-y-2">
-                <p><strong>E:</strong> {personal.email}</p>
-                <p><strong>T:</strong> {personal.phone}</p>
-                <p><strong>L:</strong> {personal.location}</p>
+                {personal.email && <p><strong>E:</strong> {personal.email}</p>}
+                {personal.phone && <p><strong>T:</strong> {personal.phone}</p>}
+                {personal.location && <p><strong>L:</strong> {personal.location}</p>}
+                {personal.website && <p><strong>W:</strong> <span className="font-bold" style={{ color: theme.primaryColor }}>{personal.website}</span></p>}
              </div>
           </section>
           <SkillsSection />
