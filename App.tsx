@@ -15,6 +15,9 @@ const App: React.FC = () => {
   const [isGenerating, setIsGenerating] = useState(false);
   const [aiForm, setAiForm] = useState({ company: '', role: '', description: '' });
 
+  // Condição para habilitar recursos de IA: o nome não pode estar vazio e não deve ser o padrão inicial (opcional)
+  const isResumeEmpty = !data.personal.fullName || data.personal.fullName.trim() === '' || data.personal.fullName === 'João das Neves';
+
   useEffect(() => {
     if (data.personal.fullName && data.personal.fullName !== 'João das Neves') {
       document.title = `CVfácil | ${data.personal.fullName}`;
@@ -175,7 +178,13 @@ const App: React.FC = () => {
         <div className="flex items-center gap-3">
           <button 
             onClick={() => setIsCoverLetterModalOpen(true)}
-            className="flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-bold border border-slate-200 text-slate-600 bg-white hover:bg-slate-50 transition-all active:scale-95"
+            disabled={isResumeEmpty}
+            title={isResumeEmpty ? "Preencha seu currículo primeiro" : ""}
+            className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-bold border border-slate-200 transition-all active:scale-95 ${
+              isResumeEmpty 
+              ? 'bg-slate-50 text-slate-400 cursor-not-allowed opacity-60' 
+              : 'text-slate-600 bg-white hover:bg-slate-50'
+            }`}
           >
             <span className="material-symbols-outlined text-[18px]">history_edu</span>
             Carta de Apresentação
@@ -183,7 +192,13 @@ const App: React.FC = () => {
 
           <button 
             onClick={() => setIsAIModalOpen(true)}
-            className="flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-bold border border-blue-200 text-blue-600 bg-blue-50 hover:bg-blue-100 transition-all active:scale-95"
+            disabled={isResumeEmpty}
+            title={isResumeEmpty ? "Preencha seu currículo primeiro" : ""}
+            className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-bold border transition-all active:scale-95 ${
+              isResumeEmpty 
+              ? 'bg-slate-50 border-slate-200 text-slate-400 cursor-not-allowed opacity-60' 
+              : 'border-blue-200 text-blue-600 bg-blue-50 hover:bg-blue-100'
+            }`}
           >
             <span className="material-symbols-outlined text-[18px]">auto_awesome</span>
             Gerar com IA
