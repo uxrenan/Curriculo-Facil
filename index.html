@@ -14,24 +14,49 @@
       body {
         font-family: 'Inter', sans-serif;
       }
+      
       @media print {
+        @page {
+          size: A4;
+          margin: 0;
+        }
+        
+        body {
+          background: white !important;
+          margin: 0;
+          padding: 0;
+        }
+
+        /* Esconde tudo que não for o container de impressão */
         .no-print {
           display: none !important;
         }
-        .print-only {
+
+        /* Garante que o elemento de impressão ocupe a tela toda */
+        .print-area {
           display: block !important;
           width: 100% !important;
+          height: auto !important;
           margin: 0 !important;
           padding: 0 !important;
-          box-shadow: none !important;
+          position: absolute;
+          top: 0;
+          left: 0;
         }
-        body {
-          background-color: white !important;
+      }
+
+      /* Helper para forçar exibição apenas na impressão */
+      .print-only {
+        display: none;
+      }
+      
+      @media print {
+        .print-only {
+          display: block !important;
         }
       }
     </style>
 
-    <!-- Mapeamento de importação para bibliotecas React -->
     <script type="importmap">
     {
       "imports": {
@@ -41,15 +66,9 @@
       }
     }
     </script>
-
-    <!-- 
-      CORREÇÃO: Inclusão do arquivo index.tsx como um módulo.
-      Isso informa ao Vite/Navegador para carregar a lógica do React e montar o app no elemento #root.
-    -->
     <script type="module" src="/index.tsx"></script>
   </head>
   <body class="bg-slate-50 text-slate-900">
-    <!-- Div onde o aplicativo React será injetado -->
     <div id="root"></div>
   </body>
 </html>

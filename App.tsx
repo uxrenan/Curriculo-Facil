@@ -1,5 +1,5 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Editor from './components/Editor';
 import Preview from './components/Preview';
 import { INITIAL_DATA } from './constants';
@@ -8,13 +8,28 @@ import { ResumeData } from './types';
 const App: React.FC = () => {
   const [data, setData] = useState<ResumeData>(INITIAL_DATA);
 
+  // Atualiza o título do documento para que o nome do arquivo PDF seja o nome do usuário
+  useEffect(() => {
+    if (data.personal.fullName) {
+      document.title = `Curriculo - ${data.personal.fullName}`;
+    } else {
+      document.title = "Swift Resume Builder";
+    }
+  }, [data.personal.fullName]);
+
   const handlePrint = () => {
     window.print();
   };
 
   return (
     <div className="flex flex-col h-screen overflow-hidden bg-slate-50">
-      {/* Navbar */}
+      
+      {/* Elemento Invisível na Tela, Visível apenas na Impressão */}
+      <div className="print-only">
+        <Preview data={data} isPrintVersion={true} />
+      </div>
+
+      {/* Navbar - Desabilitada na Impressão */}
       <header className="no-print h-16 shrink-0 bg-white border-b border-slate-200 px-6 flex items-center justify-between z-10">
         <div className="flex items-center gap-3">
           <div className="size-10 bg-blue-600 rounded-lg flex items-center justify-center text-white shadow-lg">
@@ -41,14 +56,14 @@ const App: React.FC = () => {
         </div>
       </header>
 
-      {/* Main Content */}
-      <main className="flex-1 flex overflow-hidden">
+      {/* Main Content - Desabilitado na Impressão */}
+      <main className="flex-1 flex overflow-hidden no-print">
         {/* Editor Panel */}
-        <div className="no-print flex-1 overflow-y-auto p-8 custom-scrollbar bg-slate-50 border-r border-slate-200">
+        <div className="flex-1 overflow-y-auto p-8 custom-scrollbar bg-slate-50 border-r border-slate-200">
           <Editor data={data} onChange={setData} />
         </div>
 
-        {/* Preview Panel */}
+        {/* Preview Panel (UI Only) */}
         <div className="hidden lg:flex flex-1 bg-slate-200 overflow-y-auto justify-center p-12 relative">
           <div className="fixed top-20 right-12 z-20 flex flex-col gap-2">
             <div className="bg-white/80 backdrop-blur-sm p-3 rounded-xl border border-slate-300 shadow-sm">

@@ -4,9 +4,10 @@ import { ResumeData } from '../types';
 
 interface PreviewProps {
   data: ResumeData;
+  isPrintVersion?: boolean;
 }
 
-const Preview: React.FC<PreviewProps> = ({ data }) => {
+const Preview: React.FC<PreviewProps> = ({ data, isPrintVersion = false }) => {
   const { personal, experiences, educations, skills, theme } = data;
 
   const fontFamilies = {
@@ -30,7 +31,6 @@ const Preview: React.FC<PreviewProps> = ({ data }) => {
   const currentFontSize = fontSizes[theme.fontSize];
   const currentFontFamily = fontFamilies[theme.fontFamily];
 
-  // Helper component for sections
   const SectionHeader = ({ title }: { title: string }) => (
     <h2 className={`font-bold uppercase tracking-widest text-slate-400 border-b border-slate-200 pb-1 mb-4 ${currentFontSize.h2}`}>
       {title}
@@ -61,14 +61,12 @@ const Preview: React.FC<PreviewProps> = ({ data }) => {
           {personal.location && <span>{personal.location}</span>}
         </div>
       </header>
-
       {personal.summary && (
         <section>
           <SectionHeader title="Resumo" />
           <p className="text-slate-700 leading-relaxed whitespace-pre-wrap">{personal.summary}</p>
         </section>
       )}
-
       {experiences.length > 0 && (
         <section>
           <SectionHeader title="Experiência" />
@@ -86,7 +84,6 @@ const Preview: React.FC<PreviewProps> = ({ data }) => {
           </div>
         </section>
       )}
-
       {educations.length > 0 && (
         <section>
           <SectionHeader title="Formação" />
@@ -103,7 +100,6 @@ const Preview: React.FC<PreviewProps> = ({ data }) => {
           </div>
         </section>
       )}
-
       <SkillsSection />
     </div>
   );
@@ -115,17 +111,15 @@ const Preview: React.FC<PreviewProps> = ({ data }) => {
           <h1 className={`${currentFontSize.h1} font-bold text-slate-900 leading-tight`}>{personal.fullName}</h1>
           <p className="font-bold mt-2" style={{ color: theme.primaryColor }}>{personal.jobTitle}</p>
         </header>
-
         <section className="space-y-2">
           <SectionHeader title="Contato" />
           <div className="text-xs space-y-1 text-slate-600">
-            {personal.email && <p>{personal.email}</p>}
+            {personal.email && <p className="break-all">{personal.email}</p>}
             {personal.phone && <p>{personal.phone}</p>}
             {personal.location && <p>{personal.location}</p>}
             {personal.website && <p className="font-bold" style={{ color: theme.primaryColor }}>{personal.website}</p>}
           </div>
         </section>
-
         <SkillsSection />
       </div>
       <div className="flex-1 space-y-8">
@@ -174,13 +168,11 @@ const Preview: React.FC<PreviewProps> = ({ data }) => {
           <span>{personal.email}</span>
         </div>
       </header>
-      
       <div className="text-left space-y-8">
         <section>
           <SectionHeader title="Resumo" />
           <p className="italic text-slate-700">{personal.summary}</p>
         </section>
-
         <section>
           <SectionHeader title="Experiência Profissional" />
           <div className="space-y-6">
@@ -205,7 +197,7 @@ const Preview: React.FC<PreviewProps> = ({ data }) => {
 
   const renderCreative = () => (
     <div className="w-full">
-      <header className="bg-slate-900 text-white -mx-12 -mt-12 p-12 mb-8">
+      <header className={`bg-slate-900 text-white -mx-12 -mt-12 p-12 mb-8 ${isPrintVersion ? 'print:p-8 print:mb-4' : ''}`}>
         <div className="flex items-center gap-6">
           <div className="size-20 bg-white/20 rounded-full flex items-center justify-center text-3xl font-bold">
              {personal.fullName.charAt(0)}
@@ -216,7 +208,6 @@ const Preview: React.FC<PreviewProps> = ({ data }) => {
           </div>
         </div>
       </header>
-
       <div className="grid grid-cols-12 gap-8">
         <div className="col-span-8 space-y-8">
           <section>
@@ -255,11 +246,12 @@ const Preview: React.FC<PreviewProps> = ({ data }) => {
     creative: renderCreative
   };
 
+  const containerClasses = isPrintVersion 
+    ? `print-area bg-white p-[20mm] ${currentFontSize.base} ${currentFontFamily}`
+    : `bg-white shadow-2xl mx-auto w-full max-w-[800px] min-h-[1130px] overflow-hidden p-12 transition-all duration-300 ${currentFontSize.base} ${currentFontFamily}`;
+
   return (
-    <div 
-      id="resume-document" 
-      className={`print-only bg-white shadow-2xl mx-auto w-full max-w-[800px] min-h-[1130px] overflow-hidden p-12 transition-all duration-300 ${currentFontSize.base} ${currentFontFamily}`}
-    >
+    <div id={isPrintVersion ? "resume-print" : "resume-preview"} className={containerClasses}>
       {templates[theme.template]()}
     </div>
   );
