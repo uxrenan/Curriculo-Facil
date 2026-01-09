@@ -10,51 +10,39 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Lora:ital,wght@0,400..700;1,400..700&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet" />
     <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" rel="stylesheet" />
+    
+    <!-- Biblioteca para geração de PDF no cliente -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+
     <style>
       body {
         font-family: 'Inter', sans-serif;
       }
       
-      @media print {
-        @page {
-          size: A4;
-          margin: 0;
-        }
-        
-        body {
-          background: white !important;
-          margin: 0;
-          padding: 0;
-        }
-
-        /* Esconde tudo que não for o container de impressão */
-        .no-print {
-          display: none !important;
-        }
-
-        /* Garante que o elemento de impressão ocupe a tela toda */
-        .print-area {
-          display: block !important;
-          width: 100% !important;
-          height: auto !important;
-          margin: 0 !important;
-          padding: 0 !important;
-          position: absolute;
-          top: 0;
-          left: 0;
-        }
+      /* Esconde elementos auxiliares da interface na exportação se necessário */
+      .hide-in-export {
+        display: none !important;
       }
 
-      /* Helper para forçar exibição apenas na impressão */
-      .print-only {
-        display: none;
+      /* Custom Scrollbar Styles */
+      .custom-scrollbar::-webkit-scrollbar {
+        width: 8px;
+      }
+      .custom-scrollbar::-webkit-scrollbar-track {
+        background: transparent;
+      }
+      .custom-scrollbar::-webkit-scrollbar-thumb {
+        background: #cbd5e1;
+        border-radius: 10px;
+      }
+      .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+        background: #94a3b8;
       }
       
-      @media print {
-        .print-only {
-          display: block !important;
-        }
-      }
+      /* Font Family Helpers */
+      .font-serif { font-family: 'Lora', serif; }
+      .font-mono { font-family: 'JetBrains Mono', monospace; }
+      .font-sans { font-family: 'Inter', sans-serif; }
     </style>
 
     <script type="importmap">

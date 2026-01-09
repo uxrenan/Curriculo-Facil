@@ -4,10 +4,10 @@ import { ResumeData } from '../types';
 
 interface PreviewProps {
   data: ResumeData;
-  isPrintVersion?: boolean;
+  isExportVersion?: boolean;
 }
 
-const Preview: React.FC<PreviewProps> = ({ data, isPrintVersion = false }) => {
+const Preview: React.FC<PreviewProps> = ({ data, isExportVersion = false }) => {
   const { personal, experiences, educations, skills, theme } = data;
 
   const fontFamilies = {
@@ -20,12 +20,6 @@ const Preview: React.FC<PreviewProps> = ({ data, isPrintVersion = false }) => {
     small: { base: 'text-[12px]', h1: 'text-2xl', h2: 'text-sm', h3: 'text-sm' },
     medium: { base: 'text-[14px]', h1: 'text-3xl', h2: 'text-base', h3: 'text-base' },
     large: { base: 'text-[16px]', h1: 'text-4xl', h2: 'text-lg', h3: 'text-lg' }
-  };
-
-  const spacingSizes = {
-    compact: 'space-y-4',
-    normal: 'space-y-8',
-    relaxed: 'space-y-12'
   };
 
   const currentFontSize = fontSizes[theme.fontSize];
@@ -197,7 +191,7 @@ const Preview: React.FC<PreviewProps> = ({ data, isPrintVersion = false }) => {
 
   const renderCreative = () => (
     <div className="w-full">
-      <header className={`bg-slate-900 text-white -mx-12 -mt-12 p-12 mb-8 ${isPrintVersion ? 'print:p-8 print:mb-4' : ''}`}>
+      <header className={`bg-slate-900 text-white -mx-12 -mt-12 p-12 mb-8`}>
         <div className="flex items-center gap-6">
           <div className="size-20 bg-white/20 rounded-full flex items-center justify-center text-3xl font-bold">
              {personal.fullName.charAt(0)}
@@ -246,12 +240,12 @@ const Preview: React.FC<PreviewProps> = ({ data, isPrintVersion = false }) => {
     creative: renderCreative
   };
 
-  const containerClasses = isPrintVersion 
-    ? `print-area bg-white p-[20mm] ${currentFontSize.base} ${currentFontFamily}`
+  const containerClasses = isExportVersion 
+    ? `bg-white w-[210mm] min-h-[297mm] p-[15mm] mx-auto ${currentFontSize.base} ${currentFontFamily}`
     : `bg-white shadow-2xl mx-auto w-full max-w-[800px] min-h-[1130px] overflow-hidden p-12 transition-all duration-300 ${currentFontSize.base} ${currentFontFamily}`;
 
   return (
-    <div id={isPrintVersion ? "resume-print" : "resume-preview"} className={containerClasses}>
+    <div id={isExportVersion ? "resume-export-target" : "resume-preview"} className={containerClasses}>
       {templates[theme.template]()}
     </div>
   );

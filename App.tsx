@@ -7,8 +7,8 @@ import { ResumeData } from './types';
 
 const App: React.FC = () => {
   const [data, setData] = useState<ResumeData>(INITIAL_DATA);
+  const [isDownloading, setIsDownloading] = useState(false);
 
-  // Atualiza o título do documento para que o nome do arquivo PDF seja o nome do usuário
   useEffect(() => {
     if (data.personal.fullName) {
       document.title = `Curriculo - ${data.personal.fullName}`;
@@ -17,20 +17,51 @@ const App: React.FC = () => {
     }
   }, [data.personal.fullName]);
 
-  const handlePrint = () => {
-    window.print();
+  const handleDownloadPDF = async () => {
+    if (isDownloading) return;
+    
+    const element = document.getElementById('resume-export-target');
+    if (!element) return;
+
+    setIsDownloading(true);
+
+    const fullNameSlug = data.personal.fullName.toLowerCase().trim().replace(/\s+/g, '-');
+    const filename = `curriculo-${fullNameSlug || 'meu-curriculo'}.pdf`;
+
+    const opt = {
+      margin: 0,
+      filename: filename,
+      image: { type: 'jpeg', quality: 0.98 },
+      html2canvas: { 
+        scale: 2, 
+        useCORS: true, 
+        letterRendering: true,
+        scrollX: 0,
+        scrollY: 0
+      },
+      jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
+    };
+
+    try {
+      // @ts-ignore - html2pdf está disponível globalmente via script tag
+      await window.html2pdf().set(opt).from(element).save();
+    } catch (error) {
+      console.error("Erro ao gerar PDF:", error);
+    } finally {
+      setIsDownloading(false);
+    }
   };
 
   return (
     <div className="flex flex-col h-screen overflow-hidden bg-slate-50">
       
-      {/* Elemento Invisível na Tela, Visível apenas na Impressão */}
-      <div className="print-only">
-        <Preview data={data} isPrintVersion={true} />
+      {/* Container invisível para exportação (garante renderização correta sem interferência da UI) */}
+      <div className="fixed top-0 left-0 -z-50 pointer-events-none opacity-0 overflow-hidden" style={{ width: '210mm' }}>
+        <Preview data={data} isExportVersion={true} />
       </div>
 
-      {/* Navbar - Desabilitada na Impressão */}
-      <header className="no-print h-16 shrink-0 bg-white border-b border-slate-200 px-6 flex items-center justify-between z-10">
+      {/* Navbar */}
+      <header className="h-16 shrink-0 bg-white border-b border-slate-200 px-6 flex items-center justify-between z-10 shadow-sm">
         <div className="flex items-center gap-3">
           <div className="size-10 bg-blue-600 rounded-lg flex items-center justify-center text-white shadow-lg">
             <span className="material-symbols-outlined">description</span>
@@ -47,24 +78,31 @@ const App: React.FC = () => {
             <span className="text-xs font-bold text-green-700">Salvo no Navegador</span>
           </div>
           <button 
-            onClick={handlePrint}
-            className="flex items-center gap-2 px-5 py-2 bg-blue-600 text-white rounded-lg text-sm font-bold shadow-lg shadow-blue-500/30 hover:bg-blue-700 transition-all active:scale-95"
+            onClick={handleDownloadPDF}
+            disabled={isDownloading}
+            className={`flex items-center gap-2 px-5 py-2 rounded-lg text-sm font-bold shadow-lg transition-all active:scale-95 ${
+              isDownloading 
+              ? 'bg-slate-400 text-white cursor-not-allowed' 
+              : 'bg-blue-600 text-white shadow-blue-500/30 hover:bg-blue-700'
+            }`}
           >
-            <span className="material-symbols-outlined text-[18px]">download</span>
-            Baixar PDF
+            <span className={`material-symbols-outlined text-[18px] ${isDownloading ? 'animate-spin' : ''}`}>
+              {isDownloading ? 'sync' : 'download'}
+            </span>
+            {isDownloading ? 'Gerando...' : 'Baixar PDF'}
           </button>
         </div>
       </header>
 
-      {/* Main Content - Desabilitado na Impressão */}
-      <main className="flex-1 flex overflow-hidden no-print">
+      {/* Main Content */}
+      <main className="flex-1 flex overflow-hidden">
         {/* Editor Panel */}
         <div className="flex-1 overflow-y-auto p-8 custom-scrollbar bg-slate-50 border-r border-slate-200">
           <Editor data={data} onChange={setData} />
         </div>
 
-        {/* Preview Panel (UI Only) */}
-        <div className="hidden lg:flex flex-1 bg-slate-200 overflow-y-auto justify-center p-12 relative">
+        {/* Preview Panel (Visualização em tempo real) */}
+        <div className="hidden lg:flex flex-1 bg-slate-200 overflow-y-auto justify-center p-12 relative custom-scrollbar">
           <div className="fixed top-20 right-12 z-20 flex flex-col gap-2">
             <div className="bg-white/80 backdrop-blur-sm p-3 rounded-xl border border-slate-300 shadow-sm">
                <p className="text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-1">Formato da Página</p>
@@ -75,32 +113,10 @@ const App: React.FC = () => {
         </div>
       </main>
 
-      {/* Mobile Preview Toggle (Floating Button) */}
-      <button className="lg:hidden fixed bottom-6 right-6 no-print size-14 bg-slate-900 text-white rounded-full shadow-2xl flex items-center justify-center active:scale-90 transition-transform">
+      {/* Mobile Preview Toggle */}
+      <button className="lg:hidden fixed bottom-6 right-6 size-14 bg-slate-900 text-white rounded-full shadow-2xl flex items-center justify-center active:scale-90 transition-transform z-20">
          <span className="material-symbols-outlined">visibility</span>
       </button>
-
-      {/* Custom Scrollbar Styles */}
-      <style>{`
-        .custom-scrollbar::-webkit-scrollbar {
-          width: 8px;
-        }
-        .custom-scrollbar::-webkit-scrollbar-track {
-          background: transparent;
-        }
-        .custom-scrollbar::-webkit-scrollbar-thumb {
-          background: #cbd5e1;
-          border-radius: 10px;
-        }
-        .custom-scrollbar::-webkit-scrollbar-thumb:hover {
-          background: #94a3b8;
-        }
-        
-        /* Font Family Helpers */
-        .font-serif { font-family: 'Lora', serif; }
-        .font-mono { font-family: 'JetBrains Mono', monospace; }
-        .font-sans { font-family: 'Inter', sans-serif; }
-      `}</style>
     </div>
   );
 };
