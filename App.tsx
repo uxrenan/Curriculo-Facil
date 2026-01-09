@@ -142,23 +142,31 @@ const App: React.FC = () => {
 
       {/* Navbar */}
       <header className="h-16 shrink-0 bg-white border-b border-slate-200 px-6 flex items-center justify-between z-10 shadow-sm">
-        <div className="flex items-center gap-[12px]">
-          <div className="text-blue-600">
-            <svg viewBox="0 0 512 512" width="38" height="38" className="drop-shadow-sm">
-              <path fill="currentColor" d="M140 40h240v64h64v320H140z" opacity=".15"/>
-              <path fill="currentColor" d="M100 80h240v64h64v320H100z" opacity=".3"/>
-              <rect x="60" y="120" width="300" height="360" rx="24" fill="currentColor"/>
-              <text x="120" y="270" fill="white" fontFamily="Arial" fontWeight="900" fontSize="110">CV</text>
-              <rect x="120" y="315" width="180" height="18" rx="9" fill="white"/>
-              <rect x="120" y="355" width="180" height="18" rx="9" fill="white"/>
-              <rect x="120" y="395" width="120" height="18" rx="9" fill="white"/>
-            </svg>
+        <div className="flex items-center gap-6">
+          <div className="flex items-center gap-[12px]">
+            <div className="text-blue-600">
+              <svg viewBox="0 0 512 512" width="38" height="38" className="drop-shadow-sm">
+                <path fill="currentColor" d="M140 40h240v64h64v320H140z" opacity=".15"/>
+                <path fill="currentColor" d="M100 80h240v64h64v320H100z" opacity=".3"/>
+                <rect x="60" y="120" width="300" height="360" rx="24" fill="currentColor"/>
+                <text x="120" y="270" fill="white" fontFamily="Arial" fontWeight="900" fontSize="110">CV</text>
+                <rect x="120" y="315" width="180" height="18" rx="9" fill="white"/>
+                <rect x="120" y="355" width="180" height="18" rx="9" fill="white"/>
+                <rect x="120" y="395" width="120" height="18" rx="9" fill="white"/>
+              </svg>
+            </div>
+            <div>
+              <h2 className="text-slate-900 font-bold text-2xl leading-none flex items-baseline font-geist tracking-tight">
+                CV<span className="text-blue-600">fácil</span>
+              </h2>
+            </div>
           </div>
-          <div>
-            <h2 className="text-slate-900 font-bold text-2xl leading-none flex items-baseline font-geist tracking-tight">
-              CV<span className="text-blue-600">fácil</span>
-            </h2>
-          </div>
+          
+          <div className="hidden md:block h-6 w-[1px] bg-slate-200"></div>
+          
+          <p className="hidden md:block text-[11px] text-slate-500 font-medium">
+            Desenvolvido por <a href="https://renansm.com/" target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline font-bold">Renan Marques</a>
+          </p>
         </div>
 
         <div className="flex items-center gap-3">
