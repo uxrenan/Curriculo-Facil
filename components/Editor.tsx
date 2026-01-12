@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { ResumeData, Experience, Education, TemplateType, FontFamilyType } from '../types';
 
@@ -178,9 +179,9 @@ const Editor: React.FC<EditorProps> = ({ data, onChange }) => {
             <button 
               key={t}
               onClick={() => onChange({...data, theme: {...data.theme, template: t}})}
-              className={`flex flex-col items-center gap-2 group p-1.5 transition-all rounded-xl ${data.theme.template === t ? 'ring-2 ring-blue-500 bg-blue-50/50' : 'opacity-60 hover:opacity-100 hover:bg-slate-50'}`}
+              className={`flex flex-col items-center gap-2 group p-1.5 transition-all rounded-xl btn-pop ${data.theme.template === t ? 'ring-2 ring-blue-500 bg-blue-50/50' : 'opacity-60 hover:opacity-100 hover:bg-slate-50'}`}
             >
-              <div className="w-full aspect-[3/4] bg-white border border-slate-200 rounded-lg shadow-sm overflow-hidden flex flex-col">
+              <div className="w-full aspect-[3/4] bg-white border border-slate-200 rounded-lg shadow-sm overflow-hidden flex flex-col transition-transform group-hover:scale-[1.02]">
                 {renderTemplateMockup(t)}
               </div>
               <span className={`text-[10px] font-bold uppercase tracking-tighter ${data.theme.template === t ? 'text-blue-600' : 'text-slate-500'}`}>
@@ -198,7 +199,7 @@ const Editor: React.FC<EditorProps> = ({ data, onChange }) => {
                 <button 
                   key={color}
                   onClick={() => onChange({...data, theme: {...data.theme, primaryColor: color}})}
-                  className={`size-9 rounded-full transition-transform hover:scale-110 relative ${data.theme.primaryColor === color ? 'ring-2 ring-offset-2 ring-blue-500' : ''}`}
+                  className={`size-9 rounded-full transition-transform hover:scale-110 relative btn-pop ${data.theme.primaryColor === color ? 'ring-2 ring-offset-2 ring-blue-500' : ''}`}
                   style={{ backgroundColor: color }}
                 >
                   {data.theme.primaryColor === color && (
@@ -222,7 +223,7 @@ const Editor: React.FC<EditorProps> = ({ data, onChange }) => {
                 <button
                   key={f}
                   onClick={() => onChange({...data, theme: {...data.theme, fontFamily: f}})}
-                  className={`flex-1 py-2 px-3 rounded-lg text-[11px] font-bold transition-all ${data.theme.fontFamily === f ? 'bg-white shadow-sm text-slate-900' : 'text-slate-500 hover:text-slate-700'}`}
+                  className={`flex-1 py-2 px-3 rounded-lg text-[11px] font-bold transition-all btn-pop ${data.theme.fontFamily === f ? 'bg-white shadow-sm text-slate-900' : 'text-slate-500 hover:text-slate-700'}`}
                 >
                   {f === 'sans' ? 'Sans' : f === 'serif' ? 'Serifa' : 'Mono'}
                 </button>
@@ -277,14 +278,14 @@ const Editor: React.FC<EditorProps> = ({ data, onChange }) => {
             <span className="material-symbols-outlined text-blue-600">work</span>
             <h2 className="text-lg font-bold text-slate-900">Experiência</h2>
           </div>
-          <button onClick={addExperience} className="text-blue-600 hover:bg-blue-50 px-3 py-1.5 rounded-lg text-xs font-bold flex items-center gap-1 transition-colors">
+          <button onClick={addExperience} className="text-blue-600 hover:bg-blue-50 px-3 py-1.5 rounded-lg text-xs font-bold flex items-center gap-1 transition-colors btn-pop">
             <span className="material-symbols-outlined text-[18px]">add</span> Adicionar
           </button>
         </div>
         <div className="space-y-4">
           {data.experiences.map((exp) => (
             <div key={exp.id} className="p-4 rounded-xl border border-slate-100 bg-slate-50/50 relative group">
-              <button onClick={() => removeExperience(exp.id)} className="absolute top-3 right-3 text-slate-400 hover:text-red-500 transition-colors p-1" title="Remover">
+              <button onClick={() => removeExperience(exp.id)} className="absolute top-3 right-3 text-slate-400 hover:text-red-500 transition-colors p-1 btn-pop" title="Remover">
                 <span className="material-symbols-outlined text-[20px]">delete</span>
               </button>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-2">
@@ -324,14 +325,14 @@ const Editor: React.FC<EditorProps> = ({ data, onChange }) => {
             <span className="material-symbols-outlined text-blue-600">school</span>
             <h2 className="text-lg font-bold text-slate-900">Formação</h2>
           </div>
-          <button onClick={addEducation} className="text-blue-600 hover:bg-blue-50 px-3 py-1.5 rounded-lg text-xs font-bold flex items-center gap-1 transition-colors">
+          <button onClick={addEducation} className="text-blue-600 hover:bg-blue-50 px-3 py-1.5 rounded-lg text-xs font-bold flex items-center gap-1 transition-colors btn-pop">
             <span className="material-symbols-outlined text-[18px]">add</span> Adicionar
           </button>
         </div>
         <div className="space-y-4">
           {data.educations.map((edu) => (
             <div key={edu.id} className="p-4 rounded-xl border border-slate-100 bg-slate-50/50 relative group">
-              <button onClick={() => removeEducation(edu.id)} className="absolute top-3 right-3 text-slate-400 hover:text-red-500 transition-colors p-1" title="Remover">
+              <button onClick={() => removeEducation(edu.id)} className="absolute top-3 right-3 text-slate-400 hover:text-red-500 transition-colors p-1 btn-pop" title="Remover">
                 <span className="material-symbols-outlined text-[20px]">delete</span>
               </button>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-2">
@@ -368,7 +369,7 @@ const Editor: React.FC<EditorProps> = ({ data, onChange }) => {
         </div>
         <div className="flex flex-wrap gap-2 mb-4 min-h-[40px] p-2 rounded-lg bg-slate-50/50">
           {data.skills.map((skill) => (
-            <span key={skill} className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-blue-100 text-blue-700 rounded-lg text-xs font-bold group transition-all hover:bg-red-50 hover:text-red-700 cursor-pointer shadow-sm" onClick={() => removeSkill(skill)}>
+            <span key={skill} className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-blue-100 text-blue-700 rounded-lg text-xs font-bold group transition-all hover:bg-red-50 hover:text-red-700 cursor-pointer shadow-sm btn-pop" onClick={() => removeSkill(skill)}>
               {skill}
               <span className="material-symbols-outlined text-[16px]">close</span>
             </span>
