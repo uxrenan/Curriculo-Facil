@@ -18,10 +18,10 @@ const App: React.FC = () => {
   // Mobile View Toggle: 'edit' or 'preview'
   const [viewMode, setViewMode] = useState<'edit' | 'preview'>('edit');
 
-  const isResumeEmpty = !data.personal.fullName || data.personal.fullName.trim() === '' || data.personal.fullName === 'João das Neves';
+  const isResumeEmpty = !data.personal.fullName || data.personal.fullName.trim() === '';
 
   useEffect(() => {
-    if (data.personal.fullName && data.personal.fullName !== 'João das Neves') {
+    if (data.personal.fullName && data.personal.fullName.trim() !== '') {
       document.title = `CVfácil | ${data.personal.fullName}`;
     } else {
       document.title = "CVfácil - Gerador de currículos";
