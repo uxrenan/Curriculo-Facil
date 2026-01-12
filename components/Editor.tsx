@@ -83,6 +83,86 @@ const Editor: React.FC<EditorProps> = ({ data, onChange }) => {
   const labelClass = "block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5";
   const sectionTitleClass = "text-[12px] font-bold text-slate-500 uppercase tracking-widest mb-4";
 
+  // Função para renderizar o mockup visual do template
+  const renderTemplateMockup = (type: TemplateType) => {
+    const primary = data.theme.primaryColor;
+    
+    switch (type) {
+      case 'minimalist':
+        return (
+          <div className="w-full h-full p-2 flex flex-col gap-1.5">
+            <div className="h-2 w-1/2 rounded-full" style={{ backgroundColor: primary }}></div>
+            <div className="h-1 w-full bg-slate-100 rounded-full"></div>
+            <div className="h-[1px] w-full bg-slate-200 mt-1"></div>
+            <div className="mt-2 space-y-1">
+              <div className="h-1 w-3/4 bg-slate-200 rounded-full"></div>
+              <div className="h-1 w-full bg-slate-100 rounded-full"></div>
+              <div className="h-1 w-full bg-slate-100 rounded-full"></div>
+            </div>
+          </div>
+        );
+      case 'modern':
+        return (
+          <div className="w-full h-full flex">
+            <div className="w-1/3 h-full bg-slate-50 p-2 flex flex-col gap-2 border-r border-slate-100">
+              <div className="h-2 w-full rounded-full" style={{ backgroundColor: primary }}></div>
+              <div className="h-1 w-full bg-slate-200 rounded-full"></div>
+              <div className="mt-2 space-y-1">
+                <div className="h-1 w-full bg-slate-200 rounded-full"></div>
+                <div className="h-1 w-full bg-slate-200 rounded-full"></div>
+              </div>
+            </div>
+            <div className="flex-1 p-2 flex flex-col gap-2">
+              <div className="h-1.5 w-1/2 bg-slate-200 rounded-full"></div>
+              <div className="space-y-1">
+                <div className="h-1 w-full bg-slate-100 rounded-full"></div>
+                <div className="h-1 w-full bg-slate-100 rounded-full"></div>
+              </div>
+            </div>
+          </div>
+        );
+      case 'classic':
+        return (
+          <div className="w-full h-full p-2 flex flex-col items-center gap-1">
+            <div className="h-1.5 w-3/4 bg-slate-800 rounded-full mb-1"></div>
+            <div className="flex gap-1 mb-1">
+              <div className="h-0.5 w-4 bg-slate-300 rounded-full"></div>
+              <div className="h-0.5 w-4 bg-slate-300 rounded-full"></div>
+              <div className="h-0.5 w-4 bg-slate-300 rounded-full"></div>
+            </div>
+            <div className="h-[1px] w-full bg-slate-900 mb-2"></div>
+            <div className="w-full space-y-1.5">
+              <div className="h-1 w-1/3 rounded-full" style={{ backgroundColor: primary }}></div>
+              <div className="h-1 w-full bg-slate-100 rounded-full"></div>
+              <div className="h-1 w-full bg-slate-100 rounded-full"></div>
+            </div>
+          </div>
+        );
+      case 'creative':
+        return (
+          <div className="w-full h-full flex flex-col">
+            <div className="h-1/4 w-full bg-slate-900 p-2 flex items-center gap-2">
+              <div className="size-4 rounded-full bg-white/20"></div>
+              <div className="h-1.5 w-1/2 bg-white/40 rounded-full"></div>
+            </div>
+            <div className="flex-1 flex gap-2 p-2">
+              <div className="flex-1 space-y-2">
+                <div className="h-1.5 w-3/4 rounded-full" style={{ backgroundColor: primary }}></div>
+                <div className="space-y-1">
+                  <div className="h-1 w-full bg-slate-100 rounded-full"></div>
+                  <div className="h-1 w-full bg-slate-100 rounded-full"></div>
+                </div>
+              </div>
+              <div className="w-1/4 h-full bg-slate-50 rounded p-1 space-y-1">
+                <div className="h-1 w-full bg-slate-300 rounded-full"></div>
+                <div className="h-1 w-full bg-slate-200 rounded-full"></div>
+              </div>
+            </div>
+          </div>
+        );
+    }
+  };
+
   return (
     <div className="flex flex-col gap-6 max-w-2xl mx-auto pb-24 md:pb-20">
       <div className="no-print px-1">
@@ -100,18 +180,8 @@ const Editor: React.FC<EditorProps> = ({ data, onChange }) => {
               onClick={() => onChange({...data, theme: {...data.theme, template: t}})}
               className={`flex flex-col items-center gap-2 group p-1.5 transition-all rounded-xl ${data.theme.template === t ? 'ring-2 ring-blue-500 bg-blue-50/50' : 'opacity-60 hover:opacity-100 hover:bg-slate-50'}`}
             >
-              <div className="w-full aspect-[3/4] bg-white border border-slate-200 rounded-lg shadow-sm overflow-hidden p-2 flex flex-col gap-1">
-                <div className={`h-1.5 w-3/4 rounded-full ${t === 'creative' ? 'bg-blue-400' : 'bg-slate-300'}`}></div>
-                <div className="h-1 w-full bg-slate-100 rounded-full"></div>
-                <div className="h-1 w-full bg-slate-100 rounded-full"></div>
-                <div className="mt-2 flex gap-1">
-                  {t === 'modern' && <div className="w-1/3 h-10 bg-slate-100 rounded"></div>}
-                  <div className="flex-1 space-y-1">
-                    <div className="h-1 w-full bg-slate-200 rounded-full"></div>
-                    <div className="h-1 w-full bg-slate-200 rounded-full"></div>
-                    <div className="h-1 w-full bg-slate-200 rounded-full"></div>
-                  </div>
-                </div>
+              <div className="w-full aspect-[3/4] bg-white border border-slate-200 rounded-lg shadow-sm overflow-hidden flex flex-col">
+                {renderTemplateMockup(t)}
               </div>
               <span className={`text-[10px] font-bold uppercase tracking-tighter ${data.theme.template === t ? 'text-blue-600' : 'text-slate-500'}`}>
                 {t === 'minimalist' ? 'Minimal' : t === 'modern' ? 'Moderno' : t === 'classic' ? 'Clássico' : 'Criativo'}
