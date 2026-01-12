@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import Editor from './components/Editor';
 import Preview from './components/Preview';
@@ -146,8 +147,8 @@ const App: React.FC = () => {
         <Preview data={data} isExportVersion={true} />
       </div>
 
-      <header className="h-16 shrink-0 bg-white border-b border-slate-200 px-4 md:px-6 flex items-center justify-between z-10 shadow-sm overflow-x-auto no-scrollbar">
-        <div className="flex items-center gap-3 md:gap-6 shrink-0">
+      <header className="h-16 shrink-0 bg-white border-b border-slate-200 px-4 md:px-6 flex items-center justify-between z-10 shadow-sm overflow-x-auto no-scrollbar animate-fade-in">
+        <div className="flex items-center gap-3 md:gap-6 shrink-0 animate-fade-in delay-100">
           <div className="flex items-center gap-[8px] md:gap-[12px]">
             <div className="text-blue-600">
               <svg viewBox="0 0 512 512" width="32" height="32" className="md:w-[38px] md:h-[38px] drop-shadow-sm">
@@ -170,7 +171,7 @@ const App: React.FC = () => {
           </p>
         </div>
 
-        <div className="flex items-center gap-2 md:gap-3 shrink-0">
+        <div className="flex items-center gap-2 md:gap-3 shrink-0 animate-fade-in delay-150">
           <button 
             onClick={() => setIsCoverLetterModalOpen(true)}
             disabled={isResumeEmpty}
@@ -221,13 +222,13 @@ const App: React.FC = () => {
 
       <main className="flex-1 flex flex-col lg:flex-row overflow-hidden relative">
         {/* Editor Pane */}
-        <div className={`flex-1 overflow-y-auto p-4 md:p-8 custom-scrollbar bg-slate-50 border-r border-slate-200 ${viewMode === 'preview' ? 'hidden lg:block' : 'block'}`}>
+        <div className={`flex-1 overflow-y-auto p-4 md:p-8 custom-scrollbar bg-slate-50 border-r border-slate-200 ${viewMode === 'preview' ? 'hidden lg:block' : 'block animate-fade-in-up delay-200'}`}>
           <Editor data={data} onChange={setData} />
         </div>
 
         {/* Preview Pane - Ajustado para items-start para garantir rolagem correta */}
-        <div className={`flex-1 bg-slate-200 overflow-y-auto flex justify-center items-start p-4 md:p-12 custom-scrollbar ${viewMode === 'edit' ? 'hidden lg:flex' : 'flex'}`}>
-          <div className="hidden xl:block fixed top-20 right-12 z-20">
+        <div className={`flex-1 bg-slate-200 overflow-y-auto flex justify-center items-start p-4 md:p-12 custom-scrollbar ${viewMode === 'edit' ? 'hidden lg:flex' : 'flex animate-fade-in delay-300'}`}>
+          <div className="hidden xl:block fixed top-20 right-12 z-20 animate-fade-in delay-500">
             <div className="bg-white/80 backdrop-blur-sm p-3 rounded-xl border border-slate-300 shadow-sm">
                <p className="text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-1">Formato</p>
                <p className="text-xs font-bold text-slate-800">A4 Padrão</p>
@@ -237,7 +238,7 @@ const App: React.FC = () => {
         </div>
 
         {/* Mobile View Switcher Tab Bar */}
-        <div className="lg:hidden fixed bottom-6 left-1/2 -translate-x-1/2 flex bg-white/90 backdrop-blur shadow-2xl rounded-full p-1 border border-slate-200 z-40 ring-1 ring-black/5">
+        <div className="lg:hidden fixed bottom-6 left-1/2 -translate-x-1/2 flex bg-white/90 backdrop-blur shadow-2xl rounded-full p-1 border border-slate-200 z-40 ring-1 ring-black/5 animate-fade-in-up delay-400">
            <button 
             onClick={() => setViewMode('edit')} 
             className={`flex items-center gap-2 px-6 py-2.5 rounded-full text-xs font-bold transition-all ${viewMode === 'edit' ? 'bg-blue-600 text-white shadow-lg' : 'text-slate-500'}`}

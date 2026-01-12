@@ -80,7 +80,7 @@ const Editor: React.FC<EditorProps> = ({ data, onChange }) => {
   };
 
   const inputClass = "w-full rounded-md border-slate-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-sm py-2.5 px-3";
-  const sectionClass = "bg-white p-4 md:p-6 rounded-xl border border-slate-200 shadow-sm space-y-4";
+  const sectionClass = "bg-white p-4 md:p-6 rounded-xl border border-slate-200 shadow-sm space-y-4 animate-fade-in-up";
   const labelClass = "block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5";
   const sectionTitleClass = "text-[12px] font-bold text-slate-500 uppercase tracking-widest mb-4";
 
@@ -166,13 +166,13 @@ const Editor: React.FC<EditorProps> = ({ data, onChange }) => {
 
   return (
     <div className="flex flex-col gap-6 max-w-2xl mx-auto pb-24 md:pb-20">
-      <div className="no-print px-1">
+      <div className="no-print px-1 animate-fade-in-up">
         <h1 className="text-xl md:text-2xl font-bold text-slate-900">Editar Currículo</h1>
         <p className="text-slate-500 text-sm">Altere seus dados abaixo e visualize na hora.</p>
       </div>
 
       {/* Modelo do Currículo */}
-      <section className={sectionClass}>
+      <section className={`${sectionClass} delay-100`}>
         <h2 className={sectionTitleClass}>Estilo & Modelo</h2>
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 md:gap-4">
           {(['minimalist', 'modern', 'classic', 'creative'] as TemplateType[]).map((t) => (
@@ -234,7 +234,7 @@ const Editor: React.FC<EditorProps> = ({ data, onChange }) => {
       </section>
 
       {/* Informações Pessoais */}
-      <section className={sectionClass}>
+      <section className={`${sectionClass} delay-150`}>
         <div className="flex items-center gap-2 mb-2">
            <span className="material-symbols-outlined text-blue-600">person</span>
            <h2 className="text-lg font-bold text-slate-900">Pessoal</h2>
@@ -272,7 +272,7 @@ const Editor: React.FC<EditorProps> = ({ data, onChange }) => {
       </section>
 
       {/* Experiência */}
-      <section className={sectionClass}>
+      <section className={`${sectionClass} delay-200`}>
         <div className="flex items-center justify-between mb-2">
           <div className="flex items-center gap-2">
             <span className="material-symbols-outlined text-blue-600">work</span>
@@ -319,7 +319,7 @@ const Editor: React.FC<EditorProps> = ({ data, onChange }) => {
       </section>
 
       {/* Formação Acadêmica */}
-      <section className={sectionClass}>
+      <section className={`${sectionClass} delay-300`}>
         <div className="flex items-center justify-between mb-2">
           <div className="flex items-center gap-2">
             <span className="material-symbols-outlined text-blue-600">school</span>
@@ -362,7 +362,7 @@ const Editor: React.FC<EditorProps> = ({ data, onChange }) => {
       </section>
 
       {/* Competências */}
-      <section className={sectionClass}>
+      <section className={`${sectionClass} delay-400`}>
         <div className="flex items-center gap-2 mb-2">
            <span className="material-symbols-outlined text-blue-600">psychology</span>
            <h2 className="text-lg font-bold text-slate-900">Habilidades</h2>

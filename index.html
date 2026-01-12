@@ -49,6 +49,23 @@
       .font-mono { font-family: 'JetBrains Mono', monospace; }
       .font-sans { font-family: 'Inter', sans-serif; }
 
+      /* Keyframes para Animações de Entrada */
+      @keyframes fade-in-up {
+        from {
+          opacity: 0;
+          transform: translateY(10px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+
+      @keyframes fade-in {
+        from { opacity: 0; }
+        to { opacity: 1; }
+      }
+
       /* Animação para troca de Template */
       @keyframes template-entrance {
         from {
@@ -61,13 +78,39 @@
         }
       }
 
+      .animate-fade-in-up {
+        animation: fade-in-up 0.4s cubic-bezier(0.16, 1, 0.3, 1) both;
+      }
+
+      .animate-fade-in {
+        animation: fade-in 0.4s ease-out both;
+      }
+
       .animate-template-change {
         animation: template-entrance 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards;
       }
 
+      /* Delays para Staggering */
+      .delay-100 { animation-delay: 100ms; }
+      .delay-150 { animation-delay: 150ms; }
+      .delay-200 { animation-delay: 200ms; }
+      .delay-300 { animation-delay: 300ms; }
+      .delay-400 { animation-delay: 400ms; }
+      .delay-500 { animation-delay: 500ms; }
+
       /* Feedback de clique no botão */
       .btn-pop:active {
         transform: scale(0.95);
+      }
+
+      /* Acessibilidade: respeita a preferência de movimento reduzido */
+      @media (prefers-reduced-motion: reduce) {
+        *, ::before, ::after {
+          animation-duration: 0.01ms !important;
+          animation-iteration-count: 1 !important;
+          transition-duration: 0.01ms !important;
+          scroll-behavior: auto !important;
+        }
       }
     </style>
 
