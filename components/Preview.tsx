@@ -267,7 +267,7 @@ const Preview: React.FC<PreviewProps> = ({ data, isExportVersion = false }) => {
 
   const containerClasses = isExportVersion 
     ? `bg-white w-[210mm] min-h-[297mm] p-[15mm] mx-auto ${currentFontSize.base} ${currentFontFamily}`
-    : `bg-white shadow-2xl mx-auto w-full max-w-[800px] min-h-[600px] md:min-h-[1130px] overflow-hidden p-6 md:p-12 transition-all duration-300 ${currentFontSize.base} ${currentFontFamily} rounded-xl md:rounded-none`;
+    : `bg-white shadow-2xl mx-auto w-full max-w-[800px] min-h-fit md:min-h-[1130px] p-6 md:p-12 transition-all duration-300 ${currentFontSize.base} ${currentFontFamily} rounded-xl md:rounded-none`;
 
   return (
     <div id={isExportVersion ? "resume-export-target" : "resume-preview"} className={containerClasses}>

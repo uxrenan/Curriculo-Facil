@@ -225,8 +225,8 @@ const App: React.FC = () => {
           <Editor data={data} onChange={setData} />
         </div>
 
-        {/* Preview Pane */}
-        <div className={`flex-1 bg-slate-200 overflow-y-auto justify-center p-4 md:p-12 custom-scrollbar ${viewMode === 'edit' ? 'hidden lg:flex' : 'flex'}`}>
+        {/* Preview Pane - Ajustado para items-start para garantir rolagem correta */}
+        <div className={`flex-1 bg-slate-200 overflow-y-auto flex justify-center items-start p-4 md:p-12 custom-scrollbar ${viewMode === 'edit' ? 'hidden lg:flex' : 'flex'}`}>
           <div className="hidden xl:block fixed top-20 right-12 z-20">
             <div className="bg-white/80 backdrop-blur-sm p-3 rounded-xl border border-slate-300 shadow-sm">
                <p className="text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-1">Formato</p>
