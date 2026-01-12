@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { ResumeData, Experience, Education, TemplateType, FontFamilyType } from '../types';
 
@@ -7,9 +6,11 @@ interface EditorProps {
   onChange: (newData: ResumeData) => void;
 }
 
-const PRESET_COLORS = ['#2563eb', '#3f4e5e', '#6366f1', '#e11d48', '#059669', '#d97706'];
+const PRESET_COLORS = ['#2563eb', '#3f4e5e', '#6366f1', '#e11d48', '#059669'];
 
 const Editor: React.FC<EditorProps> = ({ data, onChange }) => {
+  const isCustomColor = !PRESET_COLORS.includes(data.theme.primaryColor);
+
   const updatePersonal = (field: keyof ResumeData['personal'], value: string) => {
     onChange({
       ...data,
@@ -194,7 +195,7 @@ const Editor: React.FC<EditorProps> = ({ data, onChange }) => {
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 pt-6 border-t border-slate-100">
           <div>
             <h2 className={sectionTitleClass}>Cor de Destaque</h2>
-            <div className="flex flex-wrap gap-2.5">
+            <div className="flex flex-wrap items-center gap-2.5">
               {PRESET_COLORS.map(color => (
                 <button 
                   key={color}
@@ -207,12 +208,29 @@ const Editor: React.FC<EditorProps> = ({ data, onChange }) => {
                   )}
                 </button>
               ))}
-              <input 
-                type="color" 
-                value={data.theme.primaryColor}
-                onChange={(e) => onChange({...data, theme: {...data.theme, primaryColor: e.target.value}})}
-                className="size-9 rounded-full overflow-hidden border border-slate-200 p-0 cursor-pointer"
-              />
+              
+              {/* Custom Color Picker Button Integrated */}
+              <label 
+                className={`size-9 rounded-full transition-all hover:scale-110 relative btn-pop cursor-pointer group flex items-center justify-center overflow-hidden border border-slate-200 ${isCustomColor ? 'ring-2 ring-offset-2 ring-blue-500' : ''}`}
+                style={{ 
+                  background: isCustomColor 
+                    ? data.theme.primaryColor 
+                    : 'conic-gradient(from 0deg, #ff0000, #ffff00, #00ff00, #00ffff, #0000ff, #ff00ff, #ff0000)' 
+                }}
+                title="Cor personalizada"
+              >
+                <input 
+                  type="color" 
+                  value={data.theme.primaryColor}
+                  onChange={(e) => onChange({...data, theme: {...data.theme, primaryColor: e.target.value}})}
+                  className="sr-only"
+                />
+                {isCustomColor ? (
+                  <span className="material-symbols-outlined text-white text-[16px] drop-shadow-sm">check</span>
+                ) : (
+                  <span className="material-symbols-outlined text-white text-[14px] opacity-0 group-hover:opacity-100 transition-opacity drop-shadow-md">colorize</span>
+                )}
+              </label>
             </div>
           </div>
 
