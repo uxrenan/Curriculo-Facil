@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import Editor from './components/Editor';
 import Preview from './components/Preview';
@@ -14,8 +13,10 @@ const App: React.FC = () => {
   const [isCoverLetterModalOpen, setIsCoverLetterModalOpen] = useState(false);
   const [isGenerating, setIsGenerating] = useState(false);
   const [aiForm, setAiForm] = useState({ company: '', role: '', description: '' });
+  
+  // Mobile View Toggle: 'edit' or 'preview'
+  const [viewMode, setViewMode] = useState<'edit' | 'preview'>('edit');
 
-  // Condição para habilitar recursos de IA: o nome não pode estar vazio e não deve ser o padrão inicial (opcional)
   const isResumeEmpty = !data.personal.fullName || data.personal.fullName.trim() === '' || data.personal.fullName === 'João das Neves';
 
   useEffect(() => {
@@ -52,7 +53,7 @@ const App: React.FC = () => {
     };
 
     try {
-      // @ts-ignore - html2pdf está disponível globalmente via script tag
+      // @ts-ignore
       await window.html2pdf().set(opt).from(element).save();
     } catch (error) {
       console.error("Erro ao gerar PDF:", error);
@@ -141,17 +142,15 @@ const App: React.FC = () => {
   return (
     <div className="flex flex-col h-screen overflow-hidden bg-slate-50">
       
-      {/* Container invisível para exportação */}
       <div className="fixed top-0 left-0 -z-50 pointer-events-none opacity-0 overflow-hidden" style={{ width: '210mm' }}>
         <Preview data={data} isExportVersion={true} />
       </div>
 
-      {/* Navbar */}
-      <header className="h-16 shrink-0 bg-white border-b border-slate-200 px-6 flex items-center justify-between z-10 shadow-sm">
-        <div className="flex items-center gap-6">
-          <div className="flex items-center gap-[12px]">
+      <header className="h-16 shrink-0 bg-white border-b border-slate-200 px-4 md:px-6 flex items-center justify-between z-10 shadow-sm overflow-x-auto no-scrollbar">
+        <div className="flex items-center gap-3 md:gap-6 shrink-0">
+          <div className="flex items-center gap-[8px] md:gap-[12px]">
             <div className="text-blue-600">
-              <svg viewBox="0 0 512 512" width="38" height="38" className="drop-shadow-sm">
+              <svg viewBox="0 0 512 512" width="32" height="32" className="md:w-[38px] md:h-[38px] drop-shadow-sm">
                 <path fill="currentColor" d="M140 40h240v64h64v320H140z" opacity=".15"/>
                 <path fill="currentColor" d="M100 80h240v64h64v320H100z" opacity=".3"/>
                 <rect x="60" y="120" width="300" height="360" rx="24" fill="currentColor"/>
@@ -161,112 +160,127 @@ const App: React.FC = () => {
                 <rect x="120" y="395" width="120" height="18" rx="9" fill="white"/>
               </svg>
             </div>
-            <div>
-              <h2 className="text-slate-900 font-bold text-2xl leading-none flex items-baseline font-geist tracking-tight">
-                CV<span className="text-blue-600">fácil</span>
-              </h2>
-            </div>
+            <h2 className="text-slate-900 font-bold text-lg md:text-2xl leading-none flex items-baseline font-geist tracking-tight">
+              CV<span className="text-blue-600">fácil</span>
+            </h2>
           </div>
-          
-          <div className="hidden md:block h-6 w-[1px] bg-slate-200"></div>
-          
-          <p className="hidden md:block text-[11px] text-slate-500 font-medium">
+          <div className="hidden lg:block h-6 w-[1px] bg-slate-200"></div>
+          <p className="hidden xl:block text-[11px] text-slate-500 font-medium">
             Desenvolvido por <a href="https://renansm.com/" target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline font-bold">Renan Marques</a>
           </p>
         </div>
 
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-2 md:gap-3 shrink-0">
           <button 
             onClick={() => setIsCoverLetterModalOpen(true)}
             disabled={isResumeEmpty}
-            title={isResumeEmpty ? "Preencha seu currículo primeiro" : ""}
-            className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-bold border border-slate-200 transition-all active:scale-95 ${
+            title={isResumeEmpty ? "Preencha seu currículo primeiro" : "Gerar carta de apresentação"}
+            className={`flex items-center gap-2 p-2 md:px-4 md:py-2 rounded-lg text-sm font-bold border border-slate-200 transition-all active:scale-95 ${
               isResumeEmpty 
               ? 'bg-slate-50 text-slate-400 cursor-not-allowed opacity-60' 
               : 'text-slate-600 bg-white hover:bg-slate-50'
             }`}
           >
-            <span className="material-symbols-outlined text-[18px]">history_edu</span>
-            Carta de Apresentação
+            <span className="material-symbols-outlined text-[18px] md:text-[20px]">history_edu</span>
+            <span className="hidden sm:inline">Carta</span>
           </button>
 
           <button 
             onClick={() => setIsAIModalOpen(true)}
             disabled={isResumeEmpty}
-            title={isResumeEmpty ? "Preencha seu currículo primeiro" : ""}
-            className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-bold border transition-all active:scale-95 ${
+            title={isResumeEmpty ? "Preencha seu currículo primeiro" : "Otimizar com IA"}
+            className={`flex items-center gap-2 p-2 md:px-4 md:py-2 rounded-lg text-sm font-bold border transition-all active:scale-95 ${
               isResumeEmpty 
               ? 'bg-slate-50 border-slate-200 text-slate-400 cursor-not-allowed opacity-60' 
               : 'border-blue-200 text-blue-600 bg-blue-50 hover:bg-blue-100'
             }`}
           >
-            <span className="material-symbols-outlined text-[18px]">auto_awesome</span>
-            Gerar com IA
+            <span className="material-symbols-outlined text-[18px] md:text-[20px]">auto_awesome</span>
+            <span className="hidden sm:inline">IA</span>
           </button>
           
-          <div className="h-8 w-[1px] bg-slate-200 mx-1"></div>
+          <div className="hidden sm:block h-8 w-[1px] bg-slate-200 mx-1"></div>
 
           <button 
             onClick={handleDownloadPDF}
             disabled={isDownloading}
-            className={`flex items-center gap-2 px-5 py-2 rounded-lg text-sm font-bold shadow-lg transition-all active:scale-95 ${
+            title="Baixar em PDF"
+            className={`flex items-center gap-2 p-2 md:px-5 md:py-2 rounded-lg text-sm font-bold shadow-lg transition-all active:scale-95 ${
               isDownloading 
               ? 'bg-slate-400 text-white cursor-not-allowed' 
               : 'bg-blue-600 text-white shadow-blue-500/30 hover:bg-blue-700'
             }`}
           >
-            <span className={`material-symbols-outlined text-[18px] ${isDownloading ? 'animate-spin' : ''}`}>
+            <span className={`material-symbols-outlined text-[18px] md:text-[20px] ${isDownloading ? 'animate-spin' : ''}`}>
               {isDownloading ? 'sync' : 'download'}
             </span>
-            {isDownloading ? 'Gerando...' : 'Baixar PDF'}
+            <span className="hidden md:inline">{isDownloading ? 'Gerando...' : 'Baixar PDF'}</span>
           </button>
         </div>
       </header>
 
-      {/* Main Content */}
-      <main className="flex-1 flex overflow-hidden">
-        <div className="flex-1 overflow-y-auto p-8 custom-scrollbar bg-slate-50 border-r border-slate-200">
+      <main className="flex-1 flex flex-col lg:flex-row overflow-hidden relative">
+        {/* Editor Pane */}
+        <div className={`flex-1 overflow-y-auto p-4 md:p-8 custom-scrollbar bg-slate-50 border-r border-slate-200 ${viewMode === 'preview' ? 'hidden lg:block' : 'block'}`}>
           <Editor data={data} onChange={setData} />
         </div>
-        <div className="hidden lg:flex flex-1 bg-slate-200 overflow-y-auto justify-center p-12 relative custom-scrollbar">
-          <div className="fixed top-20 right-12 z-20 flex flex-col gap-2">
+
+        {/* Preview Pane */}
+        <div className={`flex-1 bg-slate-200 overflow-y-auto justify-center p-4 md:p-12 custom-scrollbar ${viewMode === 'edit' ? 'hidden lg:flex' : 'flex'}`}>
+          <div className="hidden xl:block fixed top-20 right-12 z-20">
             <div className="bg-white/80 backdrop-blur-sm p-3 rounded-xl border border-slate-300 shadow-sm">
-               <p className="text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-1">Formato da Página</p>
+               <p className="text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-1">Formato</p>
                <p className="text-xs font-bold text-slate-800">A4 Padrão</p>
             </div>
           </div>
           <Preview data={data} />
         </div>
+
+        {/* Mobile View Switcher Tab Bar */}
+        <div className="lg:hidden fixed bottom-6 left-1/2 -translate-x-1/2 flex bg-white/90 backdrop-blur shadow-2xl rounded-full p-1 border border-slate-200 z-40 ring-1 ring-black/5">
+           <button 
+            onClick={() => setViewMode('edit')} 
+            className={`flex items-center gap-2 px-6 py-2.5 rounded-full text-xs font-bold transition-all ${viewMode === 'edit' ? 'bg-blue-600 text-white shadow-lg' : 'text-slate-500'}`}
+           >
+             <span className="material-symbols-outlined text-[18px]">edit</span>
+             EDITOR
+           </button>
+           <button 
+            onClick={() => setViewMode('preview')} 
+            className={`flex items-center gap-2 px-6 py-2.5 rounded-full text-xs font-bold transition-all ${viewMode === 'preview' ? 'bg-blue-600 text-white shadow-lg' : 'text-slate-500'}`}
+           >
+             <span className="material-symbols-outlined text-[18px]">visibility</span>
+             PRÉVIA
+           </button>
+        </div>
       </main>
 
-      {/* Cover Letter Modal */}
       <CoverLetterModal 
         isOpen={isCoverLetterModalOpen} 
         onClose={() => setIsCoverLetterModalOpen(false)} 
         resumeData={data} 
       />
 
-      {/* IA Modal */}
       {isAIModalOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm animate-in fade-in duration-200">
           <div className="bg-white rounded-2xl shadow-2xl w-full max-w-lg overflow-hidden border border-slate-200 animate-in zoom-in-95 duration-200">
-            <div className="p-6 border-b border-slate-100 bg-slate-50 flex justify-between items-center">
+            <div className="p-4 md:p-6 border-b border-slate-100 bg-slate-50 flex justify-between items-center">
               <div className="flex items-center gap-2">
                 <span className="material-symbols-outlined text-blue-600">auto_awesome</span>
-                <h3 className="text-xl font-bold text-slate-900">Gerar com IA</h3>
+                <h3 className="text-lg md:text-xl font-bold text-slate-900">Gerar com IA</h3>
               </div>
-              <button onClick={() => setIsAIModalOpen(false)} className="text-slate-400 hover:text-slate-600">
+              <button onClick={() => setIsAIModalOpen(false)} className="text-slate-400 hover:text-slate-600 p-1">
                 <span className="material-symbols-outlined">close</span>
               </button>
             </div>
-            <div className="p-6 space-y-4">
+            <div className="p-4 md:p-6 space-y-4">
               <div>
                 <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">Empresa Alvo</label>
                 <input 
                   type="text" 
                   value={aiForm.company}
                   onChange={(e) => setAiForm({...aiForm, company: e.target.value})}
-                  placeholder="Ex: Google, Nubank, Freelancer..."
+                  placeholder="Ex: Google, Nubank..."
                   className="w-full rounded-lg border-slate-200 focus:border-blue-500 focus:ring-blue-500 text-sm" 
                 />
               </div>
@@ -276,7 +290,7 @@ const App: React.FC = () => {
                   type="text" 
                   value={aiForm.role}
                   onChange={(e) => setAiForm({...aiForm, role: e.target.value})}
-                  placeholder="Ex: Desenvolvedor Front-end Pleno"
+                  placeholder="Ex: Desenvolvedor Front-end"
                   className="w-full rounded-lg border-slate-200 focus:border-blue-500 focus:ring-blue-500 text-sm" 
                 />
               </div>
@@ -286,7 +300,7 @@ const App: React.FC = () => {
                   rows={4}
                   value={aiForm.description}
                   onChange={(e) => setAiForm({...aiForm, description: e.target.value})}
-                  placeholder="Cole aqui os requisitos e responsabilidades da vaga..."
+                  placeholder="Cole aqui os requisitos da vaga..."
                   className="w-full rounded-lg border-slate-200 focus:border-blue-500 focus:ring-blue-500 text-sm resize-none" 
                 />
               </div>
@@ -294,7 +308,7 @@ const App: React.FC = () => {
                 A IA irá reescrever seu resumo, experiências e habilidades para que fiquem alinhados com esta vaga específica.
               </p>
             </div>
-            <div className="p-6 bg-slate-50 border-t border-slate-100 flex justify-end gap-3">
+            <div className="p-4 md:p-6 bg-slate-50 border-t border-slate-100 flex justify-end gap-3">
               <button 
                 onClick={() => setIsAIModalOpen(false)}
                 className="px-4 py-2 text-sm font-bold text-slate-600 hover:text-slate-800"
@@ -308,13 +322,13 @@ const App: React.FC = () => {
               >
                 {isGenerating ? (
                   <>
-                    <span className="material-symbols-outlined animate-spin">sync</span>
+                    <span className="material-symbols-outlined animate-spin text-[18px]">sync</span>
                     Otimizando...
                   </>
                 ) : (
                   <>
-                    <span className="material-symbols-outlined">auto_fix_high</span>
-                    Otimizar Currículo
+                    <span className="material-symbols-outlined text-[18px]">auto_fix_high</span>
+                    Otimizar
                   </>
                 )}
               </button>
