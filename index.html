@@ -9,7 +9,7 @@
     <script src="https://cdn.tailwindcss.com?plugins=forms,typography"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Lora:ital,wght@0,400..700;1,400..700&family=JetBrains+Mono:wght@400;500;700&family=Geist:wght@100..900&display=swap" rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Lora:ital,wght@0,400..700;1,400..700&family=JetBrains+Mono:wght@400;500;700&family=Geist:wght@100..900&family=Press+Start+2P&display=swap" rel="stylesheet" />
     <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" rel="stylesheet" />
     
     <!-- Biblioteca para geração de PDF no cliente -->
@@ -22,6 +22,10 @@
       
       .font-geist {
         font-family: 'Geist', sans-serif;
+      }
+
+      .font-pixel {
+        font-family: 'Press Start 2P', cursive;
       }
 
       /* Esconde elementos auxiliares da interface na exportação se necessário */
@@ -111,6 +115,43 @@
           transition-duration: 0.01ms !important;
           scroll-behavior: auto !important;
         }
+      }
+
+      /* Pixel Art Styles */
+      .pixel-border {
+        box-shadow: 
+          0 -4px 0 0 #000,
+          0 4px 0 0 #000,
+          -4px 0 0 0 #000,
+          4px 0 0 0 #000;
+      }
+      
+      .pixel-btn {
+        position: relative;
+        background: #2563eb;
+        color: white;
+        box-shadow: 
+          inset -4px -4px 0 0 #1d4ed8,
+          0 -4px 0 0 #000,
+          0 4px 0 0 #000,
+          -4px 0 0 0 #000,
+          4px 0 0 0 #000;
+        transition: transform 0.1s;
+      }
+
+      .pixel-btn:active {
+        transform: translate(2px, 2px);
+        box-shadow: 
+          inset 4px 4px 0 0 #1d4ed8,
+          0 -4px 0 0 #000,
+          0 4px 0 0 #000,
+          -4px 0 0 0 #000,
+          4px 0 0 0 #000;
+      }
+
+      .pixelated {
+        image-rendering: pixelated;
+        image-rendering: crisp-edges;
       }
     </style>
 

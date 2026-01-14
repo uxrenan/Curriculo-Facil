@@ -3,6 +3,7 @@ import React, { useState, useEffect } from 'react';
 import Editor from './components/Editor';
 import Preview from './components/Preview';
 import CoverLetterModal from './components/CoverLetterModal';
+import EasterEggGame from './components/EasterEggGame';
 import { INITIAL_DATA } from './constants';
 import { ResumeData, Type } from './types';
 import { GoogleGenAI } from "@google/genai";
@@ -12,6 +13,8 @@ const App: React.FC = () => {
   const [isDownloading, setIsDownloading] = useState(false);
   const [isAIModalOpen, setIsAIModalOpen] = useState(false);
   const [isCoverLetterModalOpen, setIsCoverLetterModalOpen] = useState(false);
+  const [isEasterEggOpen, setIsEasterEggOpen] = useState(false);
+  const [logoClickCount, setLogoClickCount] = useState(0);
   const [isGenerating, setIsGenerating] = useState(false);
   const [aiForm, setAiForm] = useState({ company: '', role: '', description: '' });
   
@@ -27,6 +30,18 @@ const App: React.FC = () => {
       document.title = "CVfácil - Gerador de currículos";
     }
   }, [data.personal.fullName]);
+
+  const handleLogoClick = () => {
+    const nextCount = logoClickCount + 1;
+    if (nextCount >= 5) {
+      setIsEasterEggOpen(true);
+      setLogoClickCount(0);
+    } else {
+      setLogoClickCount(nextCount);
+      // Reset count if no click for 3 seconds
+      setTimeout(() => setLogoClickCount(0), 3000);
+    }
+  };
 
   const handleDownloadPDF = async () => {
     if (isDownloading) return;
@@ -149,7 +164,10 @@ const App: React.FC = () => {
 
       <header className="h-16 shrink-0 bg-white border-b border-slate-200 px-4 md:px-6 flex items-center justify-between z-10 shadow-sm overflow-x-auto no-scrollbar animate-fade-in">
         <div className="flex items-center gap-3 md:gap-6 shrink-0 animate-fade-in delay-100">
-          <div className="flex items-center gap-[8px] md:gap-[12px]">
+          <div 
+            className="flex items-center gap-[8px] md:gap-[12px] cursor-help transition-transform active:scale-95 select-none"
+            onClick={handleLogoClick}
+          >
             <div className="text-blue-600">
               <svg viewBox="0 0 512 512" width="32" height="32" className="md:w-[38px] md:h-[38px] drop-shadow-sm">
                 <path fill="currentColor" d="M140 40h240v64h64v320H140z" opacity=".15"/>
@@ -226,7 +244,7 @@ const App: React.FC = () => {
           <Editor data={data} onChange={setData} />
         </div>
 
-        {/* Preview Pane - Ajustado para items-start para garantir rolagem correta */}
+        {/* Preview Pane */}
         <div className={`flex-1 bg-slate-200 overflow-y-auto flex justify-center items-start p-4 md:p-12 custom-scrollbar ${viewMode === 'edit' ? 'hidden lg:flex' : 'flex animate-fade-in delay-300'}`}>
           <div className="hidden xl:block fixed top-20 right-12 z-20 animate-fade-in delay-500">
             <div className="bg-white/80 backdrop-blur-sm p-3 rounded-xl border border-slate-300 shadow-sm">
@@ -260,6 +278,11 @@ const App: React.FC = () => {
         isOpen={isCoverLetterModalOpen} 
         onClose={() => setIsCoverLetterModalOpen(false)} 
         resumeData={data} 
+      />
+
+      <EasterEggGame
+        isOpen={isEasterEggOpen}
+        onClose={() => setIsEasterEggOpen(false)}
       />
 
       {isAIModalOpen && (
