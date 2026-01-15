@@ -50,7 +50,7 @@ const App: React.FC = () => {
 
   const handleLogoClick = () => {
     const nextCount = logoClickCount + 1;
-    if (nextCount >= 5) {
+    if (nextCount >= 3) {
       setIsEasterEggOpen(true);
       setLogoClickCount(0);
     } else {
