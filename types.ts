@@ -25,6 +25,7 @@ export interface PersonalDetails {
   location: string;
   website: string;
   summary: string;
+  photo?: string; // String em Base64
 }
 
 export type TemplateType = 'minimalist' | 'modern' | 'classic' | 'creative';
@@ -53,4 +54,9 @@ export interface CoverLetterForm {
   companyName: string;
   tone: ToneType;
   highlight: string;
+}
+
+export interface TemplateCapabilities {
+  supportsPhoto: boolean;
+  supportsIcons: boolean;
 }

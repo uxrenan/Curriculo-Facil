@@ -1,5 +1,4 @@
-
-import { ResumeData } from './types';
+import { ResumeData, TemplateType, TemplateCapabilities } from './types';
 
 export const INITIAL_DATA: ResumeData = {
   personal: {
@@ -9,7 +8,8 @@ export const INITIAL_DATA: ResumeData = {
     phone: '',
     location: '',
     website: '',
-    summary: ''
+    summary: '',
+    photo: ''
   },
   experiences: [],
   educations: [],
@@ -20,5 +20,24 @@ export const INITIAL_DATA: ResumeData = {
     spacing: 'normal',
     template: 'minimalist',
     fontFamily: 'sans'
+  }
+};
+
+export const TEMPLATE_CONFIG: Record<TemplateType, TemplateCapabilities> = {
+  minimalist: {
+    supportsPhoto: false,
+    supportsIcons: true
+  },
+  modern: {
+    supportsPhoto: true,
+    supportsIcons: true
+  },
+  classic: {
+    supportsPhoto: false,
+    supportsIcons: false
+  },
+  creative: {
+    supportsPhoto: true,
+    supportsIcons: true
   }
 };

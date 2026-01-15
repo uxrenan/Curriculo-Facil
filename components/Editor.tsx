@@ -1,5 +1,6 @@
 import React from 'react';
 import { ResumeData, Experience, Education, TemplateType, FontFamilyType } from '../types';
+import { TEMPLATE_CONFIG } from '../constants';
 
 interface EditorProps {
   data: ResumeData;
@@ -10,12 +11,32 @@ const PRESET_COLORS = ['#2563eb', '#3f4e5e', '#6366f1', '#e11d48', '#059669'];
 
 const Editor: React.FC<EditorProps> = ({ data, onChange }) => {
   const isCustomColor = !PRESET_COLORS.includes(data.theme.primaryColor);
+  const capabilities = TEMPLATE_CONFIG[data.theme.template];
 
   const updatePersonal = (field: keyof ResumeData['personal'], value: string) => {
     onChange({
       ...data,
       personal: { ...data.personal, [field]: value }
     });
+  };
+
+  const handlePhotoUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      if (file.size > 2 * 1024 * 1024) {
+        alert("A imagem deve ter no máximo 2MB.");
+        return;
+      }
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        updatePersonal('photo', reader.result as string);
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
+  const removePhoto = () => {
+    updatePersonal('photo', '');
   };
 
   const updateExperience = (id: string, field: keyof Experience, value: string) => {
@@ -80,12 +101,11 @@ const Editor: React.FC<EditorProps> = ({ data, onChange }) => {
     onChange({ ...data, skills: data.skills.filter(s => s !== skill) });
   };
 
-  const inputClass = "w-full rounded-md border-slate-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-sm py-2.5 px-3";
+  const inputClass = "w-full rounded-md border-slate-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-sm py-2.5 px-3 transition-all";
   const sectionClass = "bg-white p-4 md:p-6 rounded-xl border border-slate-200 shadow-sm space-y-4 animate-fade-in-up";
   const labelClass = "block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5";
   const sectionTitleClass = "text-[12px] font-bold text-slate-500 uppercase tracking-widest mb-4";
 
-  // Função para renderizar o mockup visual do template
   const renderTemplateMockup = (type: TemplateType) => {
     const primary = data.theme.primaryColor;
     
@@ -99,7 +119,6 @@ const Editor: React.FC<EditorProps> = ({ data, onChange }) => {
             <div className="mt-2 space-y-1">
               <div className="h-1 w-3/4 bg-slate-200 rounded-full"></div>
               <div className="h-1 w-full bg-slate-100 rounded-full"></div>
-              <div className="h-1 w-full bg-slate-100 rounded-full"></div>
             </div>
           </div>
         );
@@ -107,17 +126,12 @@ const Editor: React.FC<EditorProps> = ({ data, onChange }) => {
         return (
           <div className="w-full h-full flex">
             <div className="w-1/3 h-full bg-slate-50 p-2 flex flex-col gap-2 border-r border-slate-100">
-              <div className="h-2 w-full rounded-full" style={{ backgroundColor: primary }}></div>
+              <div className="size-6 rounded-full bg-slate-200 mx-auto"></div>
               <div className="h-1 w-full bg-slate-200 rounded-full"></div>
-              <div className="mt-2 space-y-1">
-                <div className="h-1 w-full bg-slate-200 rounded-full"></div>
-                <div className="h-1 w-full bg-slate-200 rounded-full"></div>
-              </div>
             </div>
             <div className="flex-1 p-2 flex flex-col gap-2">
               <div className="h-1.5 w-1/2 bg-slate-200 rounded-full"></div>
               <div className="space-y-1">
-                <div className="h-1 w-full bg-slate-100 rounded-full"></div>
                 <div className="h-1 w-full bg-slate-100 rounded-full"></div>
               </div>
             </div>
@@ -127,15 +141,8 @@ const Editor: React.FC<EditorProps> = ({ data, onChange }) => {
         return (
           <div className="w-full h-full p-2 flex flex-col items-center gap-1">
             <div className="h-1.5 w-3/4 bg-slate-800 rounded-full mb-1"></div>
-            <div className="flex gap-1 mb-1">
-              <div className="h-0.5 w-4 bg-slate-300 rounded-full"></div>
-              <div className="h-0.5 w-4 bg-slate-300 rounded-full"></div>
-              <div className="h-0.5 w-4 bg-slate-300 rounded-full"></div>
-            </div>
             <div className="h-[1px] w-full bg-slate-900 mb-2"></div>
             <div className="w-full space-y-1.5">
-              <div className="h-1 w-1/3 rounded-full" style={{ backgroundColor: primary }}></div>
-              <div className="h-1 w-full bg-slate-100 rounded-full"></div>
               <div className="h-1 w-full bg-slate-100 rounded-full"></div>
             </div>
           </div>
@@ -143,21 +150,13 @@ const Editor: React.FC<EditorProps> = ({ data, onChange }) => {
       case 'creative':
         return (
           <div className="w-full h-full flex flex-col">
-            <div className="h-1/4 w-full bg-slate-900 p-2 flex items-center gap-2">
-              <div className="size-4 rounded-full bg-white/20"></div>
+            <div className="h-1/3 w-full bg-slate-900 p-2 flex items-center gap-2">
+              <div className="size-5 rounded bg-white/20"></div>
               <div className="h-1.5 w-1/2 bg-white/40 rounded-full"></div>
             </div>
             <div className="flex-1 flex gap-2 p-2">
               <div className="flex-1 space-y-2">
                 <div className="h-1.5 w-3/4 rounded-full" style={{ backgroundColor: primary }}></div>
-                <div className="space-y-1">
-                  <div className="h-1 w-full bg-slate-100 rounded-full"></div>
-                  <div className="h-1 w-full bg-slate-100 rounded-full"></div>
-                </div>
-              </div>
-              <div className="w-1/4 h-full bg-slate-50 rounded p-1 space-y-1">
-                <div className="h-1 w-full bg-slate-300 rounded-full"></div>
-                <div className="h-1 w-full bg-slate-200 rounded-full"></div>
               </div>
             </div>
           </div>
@@ -172,7 +171,6 @@ const Editor: React.FC<EditorProps> = ({ data, onChange }) => {
         <p className="text-slate-500 text-sm">Altere seus dados abaixo e visualize na hora.</p>
       </div>
 
-      {/* Modelo do Currículo */}
       <section className={`${sectionClass} delay-100`}>
         <h2 className={sectionTitleClass}>Estilo & Modelo</h2>
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 md:gap-4">
@@ -208,28 +206,12 @@ const Editor: React.FC<EditorProps> = ({ data, onChange }) => {
                   )}
                 </button>
               ))}
-              
-              {/* Custom Color Picker Button Integrated */}
               <label 
                 className={`size-9 rounded-full transition-all hover:scale-110 relative btn-pop cursor-pointer group flex items-center justify-center overflow-hidden border border-slate-200 ${isCustomColor ? 'ring-2 ring-offset-2 ring-blue-500' : ''}`}
-                style={{ 
-                  background: isCustomColor 
-                    ? data.theme.primaryColor 
-                    : 'conic-gradient(from 0deg, #ff0000, #ffff00, #00ff00, #00ffff, #0000ff, #ff00ff, #ff0000)' 
-                }}
-                title="Cor personalizada"
+                style={{ background: isCustomColor ? data.theme.primaryColor : 'conic-gradient(from 0deg, #ff0000, #ffff00, #00ff00, #00ffff, #0000ff, #ff00ff, #ff0000)' }}
               >
-                <input 
-                  type="color" 
-                  value={data.theme.primaryColor}
-                  onChange={(e) => onChange({...data, theme: {...data.theme, primaryColor: e.target.value}})}
-                  className="sr-only"
-                />
-                {isCustomColor ? (
-                  <span className="material-symbols-outlined text-white text-[16px] drop-shadow-sm">check</span>
-                ) : (
-                  <span className="material-symbols-outlined text-white text-[14px] opacity-0 group-hover:opacity-100 transition-opacity drop-shadow-md">colorize</span>
-                )}
+                <input type="color" value={data.theme.primaryColor} onChange={(e) => onChange({...data, theme: {...data.theme, primaryColor: e.target.value}})} className="sr-only" />
+                <span className="material-symbols-outlined text-white text-[14px] drop-shadow-md">colorize</span>
               </label>
             </div>
           </div>
@@ -257,6 +239,39 @@ const Editor: React.FC<EditorProps> = ({ data, onChange }) => {
            <span className="material-symbols-outlined text-blue-600">person</span>
            <h2 className="text-lg font-bold text-slate-900">Pessoal</h2>
         </div>
+
+        {/* Upload de Foto Dinâmico */}
+        {capabilities.supportsPhoto && (
+          <div className="mb-6 p-4 bg-slate-50 rounded-xl border-2 border-dashed border-slate-200 flex items-center gap-4 md:gap-6 animate-fade-in-up">
+            <div className="relative group shrink-0">
+              {data.personal.photo ? (
+                <img src={data.personal.photo} className="size-20 md:size-24 rounded-lg object-cover shadow-md border-2 border-white" alt="Perfil" />
+              ) : (
+                <div className="size-20 md:size-24 rounded-lg bg-slate-200 flex items-center justify-center text-slate-400">
+                  <span className="material-symbols-outlined text-3xl">add_a_photo</span>
+                </div>
+              )}
+              {data.personal.photo && (
+                <button 
+                  onClick={removePhoto}
+                  className="absolute -top-2 -right-2 size-6 bg-red-500 text-white rounded-full flex items-center justify-center shadow-lg opacity-0 group-hover:opacity-100 transition-opacity"
+                  title="Remover foto"
+                >
+                  <span className="material-symbols-outlined text-[14px]">close</span>
+                </button>
+              )}
+            </div>
+            <div className="flex-1 space-y-2">
+              <p className="text-xs font-bold text-slate-700 uppercase tracking-wider">Foto de Perfil</p>
+              <p className="text-[10px] md:text-[11px] text-slate-500 leading-tight">Este modelo permite uma foto profissional para destacar seu perfil.</p>
+              <label className="inline-block cursor-pointer px-4 py-1.5 bg-blue-600 text-white rounded-lg text-xs font-bold hover:bg-blue-700 transition-colors shadow-sm active:scale-95">
+                Escolher Imagem
+                <input type="file" className="sr-only" accept="image/*" onChange={handlePhotoUpload} />
+              </label>
+            </div>
+          </div>
+        )}
+
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div className="col-span-1">
             <label className={labelClass}>Nome Completo</label>
@@ -302,7 +317,7 @@ const Editor: React.FC<EditorProps> = ({ data, onChange }) => {
         </div>
         <div className="space-y-4">
           {data.experiences.map((exp) => (
-            <div key={exp.id} className="p-4 rounded-xl border border-slate-100 bg-slate-50/50 relative group">
+            <div key={exp.id} className="p-4 rounded-xl border border-slate-100 bg-slate-50/50 relative group transition-all hover:bg-slate-50">
               <button onClick={() => removeExperience(exp.id)} className="absolute top-3 right-3 text-slate-400 hover:text-red-500 transition-colors p-1 btn-pop" title="Remover">
                 <span className="material-symbols-outlined text-[20px]">delete</span>
               </button>
