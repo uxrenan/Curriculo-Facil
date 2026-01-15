@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect, useRef } from 'react';
 
 interface EasterEggGameProps {
@@ -369,7 +368,7 @@ const EasterEggGame: React.FC<EasterEggGameProps> = ({ isOpen, onClose }) => {
 
         {/* Footer */}
         <div className="p-3 text-center font-pixel text-[6px] text-slate-400 uppercase tracking-widest">
-          &copy; {new Date().getFullYear()} CVFACIL ENTERTAINMENT SYSTEM
+          &copy; {new Date().getFullYear()} SIMPLESCURRICULO ENTERTAINMENT SYSTEM
         </div>
       </div>
     </div>

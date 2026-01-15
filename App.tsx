@@ -27,9 +27,9 @@ const App: React.FC = () => {
 
   useEffect(() => {
     if (data.personal.fullName && data.personal.fullName.trim() !== '') {
-      document.title = `CVfácil | ${data.personal.fullName}`;
+      document.title = `Simplescurriculo | ${data.personal.fullName}`;
     } else {
-      document.title = "CVfácil - Gerador de currículos";
+      document.title = "Simplescurriculo - Gerador de currículos";
     }
   }, [data.personal.fullName]);
 
@@ -179,7 +179,7 @@ const App: React.FC = () => {
               </svg>
             </div>
             <h2 className="text-slate-900 font-bold text-lg md:text-2xl leading-none flex items-baseline font-geist tracking-tight">
-              CV<span className="text-blue-600">fácil</span>
+              Simples<span className="text-blue-600">curriculo</span>
             </h2>
           </div>
           <div className="hidden lg:block h-6 w-[1px] bg-slate-200"></div>
