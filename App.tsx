@@ -1,13 +1,11 @@
-
 import React, { useState, useEffect, useRef } from 'react';
-import { createPortal } from 'react-dom';
 import Editor from './components/Editor';
 import Preview from './components/Preview';
 import CoverLetterModal from './components/CoverLetterModal';
 import EasterEggGame from './components/EasterEggGame';
 import { INITIAL_DATA } from './constants';
-import { ResumeData, Type } from './types';
-import { GoogleGenAI } from "@google/genai";
+import { ResumeData } from './types';
+import { GoogleGenAI, Type } from "@google/genai";
 
 const App: React.FC = () => {
   const [data, setData] = useState<ResumeData>(INITIAL_DATA);
@@ -20,7 +18,6 @@ const App: React.FC = () => {
   const [logoClickCount, setLogoClickCount] = useState(0);
   const [isGenerating, setIsGenerating] = useState(false);
   const [aiForm, setAiForm] = useState({ company: '', role: '', description: '' });
-  const [dropdownPosition, setDropdownPosition] = useState({ top: 0, left: 0 });
   
   const dropdownTriggerRef = useRef<HTMLButtonElement>(null);
   const dropdownMenuRef = useRef<HTMLDivElement>(null);
@@ -50,23 +47,6 @@ const App: React.FC = () => {
     document.addEventListener('mousedown', handleClickOutside);
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
-
-  // Update position when dropdown opens or window resizes
-  useEffect(() => {
-    const updatePosition = () => {
-      if (isAIDropdownOpen && dropdownTriggerRef.current) {
-        const rect = dropdownTriggerRef.current.getBoundingClientRect();
-        setDropdownPosition({
-          top: rect.bottom + 8, // 8px margin (mt-2)
-          left: Math.max(16, rect.right - 288), // 288px is w-72, ensure it doesn't go off-screen on small devices
-        });
-      }
-    };
-
-    updatePosition();
-    window.addEventListener('resize', updatePosition);
-    return () => window.removeEventListener('resize', updatePosition);
-  }, [isAIDropdownOpen]);
 
   const handleLogoClick = () => {
     const nextCount = logoClickCount + 1;
@@ -174,55 +154,6 @@ const App: React.FC = () => {
     }
   };
 
-  const renderAIDropdown = () => {
-    if (!isAIDropdownOpen) return null;
-
-    return createPortal(
-      <div 
-        ref={dropdownMenuRef}
-        style={{ 
-          position: 'fixed', 
-          top: dropdownPosition.top, 
-          left: dropdownPosition.left, 
-          zIndex: 9999 
-        }}
-        className="w-72 bg-white rounded-xl shadow-2xl border border-slate-100 py-2 animate-in fade-in slide-in-from-top-2 duration-200"
-      >
-        <button 
-          onClick={() => { setIsAIModalOpen(true); setIsAIDropdownOpen(false); }}
-          className="w-full px-4 py-3 flex items-center gap-3 hover:bg-blue-50 transition-colors text-left"
-        >
-          <span className="material-symbols-outlined text-blue-500">auto_fix_high</span>
-          <div>
-            <p className="text-sm font-bold text-slate-900">Otimizar currículo</p>
-            <p className="text-[10px] text-slate-500">Ajuste seu CV para uma vaga específica</p>
-          </div>
-        </button>
-        <button 
-          onClick={() => { setIsCoverLetterModalOpen(true); setIsAIDropdownOpen(false); }}
-          className="w-full px-4 py-3 flex items-center gap-3 hover:bg-blue-50 transition-colors text-left"
-        >
-          <span className="material-symbols-outlined text-blue-500">history_edu</span>
-          <div>
-            <p className="text-sm font-bold text-slate-900">Gerar carta de apresentação</p>
-            <p className="text-[10px] text-slate-500">Crie uma introdução personalizada</p>
-          </div>
-        </button>
-        <button 
-          onClick={() => { setIsLinkedInModalOpen(true); setIsAIDropdownOpen(false); }}
-          className="w-full px-4 py-3 flex items-center gap-3 hover:bg-blue-50 transition-colors text-left"
-        >
-          <span className="material-symbols-outlined text-blue-500">analytics</span>
-          <div>
-            <p className="text-sm font-bold text-slate-900">Analisar LinkedIn</p>
-            <p className="text-[10px] text-slate-500">Dicas para seu perfil profissional</p>
-          </div>
-        </button>
-      </div>,
-      document.body
-    );
-  };
-
   return (
     <div className="flex flex-col h-screen overflow-hidden bg-slate-50">
       
@@ -230,7 +161,7 @@ const App: React.FC = () => {
         <Preview data={data} isExportVersion={true} />
       </div>
 
-      <header className="h-16 shrink-0 bg-white border-b border-slate-200 px-4 md:px-6 flex items-center justify-between z-40 shadow-sm overflow-x-auto no-scrollbar animate-fade-in">
+      <header className="h-16 shrink-0 bg-white border-b border-slate-200 px-4 md:px-6 flex items-center justify-between z-40 shadow-sm animate-fade-in relative">
         <div className="flex items-center gap-3 md:gap-6 shrink-0 animate-fade-in delay-100">
           <div 
             className="flex items-center gap-[8px] md:gap-[12px] cursor-help transition-transform active:scale-95 select-none"
@@ -259,7 +190,6 @@ const App: React.FC = () => {
 
         <div className="flex items-center gap-2 md:gap-3 shrink-0 animate-fade-in delay-150">
           
-          {/* AI Tools Dropdown - Portal implementation */}
           <div className="relative">
             <button 
               ref={dropdownTriggerRef}
@@ -270,7 +200,44 @@ const App: React.FC = () => {
               <span className="hidden sm:inline">Ferramentas de IA</span>
               <span className={`material-symbols-outlined text-[16px] transition-transform ${isAIDropdownOpen ? 'rotate-180' : ''}`}>expand_more</span>
             </button>
-            {renderAIDropdown()}
+            
+            {isAIDropdownOpen && (
+              <div 
+                ref={dropdownMenuRef}
+                className="absolute right-0 top-full mt-2 w-72 bg-white rounded-xl shadow-2xl border border-slate-200 py-2 z-50 animate-in fade-in slide-in-from-top-2 duration-200"
+              >
+                <button 
+                  onClick={() => { setIsAIModalOpen(true); setIsAIDropdownOpen(false); }}
+                  className="w-full px-4 py-3 flex items-center gap-3 hover:bg-blue-50 transition-colors text-left"
+                >
+                  <span className="material-symbols-outlined text-blue-500">auto_fix_high</span>
+                  <div>
+                    <p className="text-sm font-bold text-slate-900">Otimizar currículo</p>
+                    <p className="text-[10px] text-slate-500">Ajuste seu CV para uma vaga específica</p>
+                  </div>
+                </button>
+                <button 
+                  onClick={() => { setIsCoverLetterModalOpen(true); setIsAIDropdownOpen(false); }}
+                  className="w-full px-4 py-3 flex items-center gap-3 hover:bg-blue-50 transition-colors text-left"
+                >
+                  <span className="material-symbols-outlined text-blue-500">history_edu</span>
+                  <div>
+                    <p className="text-sm font-bold text-slate-900">Gerar carta de apresentação</p>
+                    <p className="text-[10px] text-slate-500">Crie uma introdução personalizada</p>
+                  </div>
+                </button>
+                <button 
+                  onClick={() => { setIsLinkedInModalOpen(true); setIsAIDropdownOpen(false); }}
+                  className="w-full px-4 py-3 flex items-center gap-3 hover:bg-blue-50 transition-colors text-left"
+                >
+                  <span className="material-symbols-outlined text-blue-500">analytics</span>
+                  <div>
+                    <p className="text-sm font-bold text-slate-900">Analisar LinkedIn</p>
+                    <p className="text-[10px] text-slate-500">Dicas para seu perfil profissional</p>
+                  </div>
+                </button>
+              </div>
+            )}
           </div>
           
           <div className="hidden sm:block h-8 w-[1px] bg-slate-200 mx-1"></div>
