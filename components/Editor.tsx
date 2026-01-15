@@ -1,5 +1,5 @@
-import React from 'react';
-import { ResumeData, Experience, Education, TemplateType, FontFamilyType } from '../types';
+import React, { useState, useRef, useEffect } from 'react';
+import { ResumeData, Experience, Education, DynamicSection, TemplateType, FontFamilyType } from '../types';
 import { TEMPLATE_CONFIG } from '../constants';
 
 interface EditorProps {
@@ -9,9 +9,39 @@ interface EditorProps {
 
 const PRESET_COLORS = ['#2563eb', '#3f4e5e', '#6366f1', '#e11d48', '#059669'];
 
+const SECTION_TEMPLATES: Array<{ title: string; contentType: 'text' | 'list'; icon: string }> = [
+  { title: 'Certificações', contentType: 'list', icon: 'verified' },
+  { title: 'Idiomas', contentType: 'list', icon: 'translate' },
+  { title: 'Projetos', contentType: 'text', icon: 'folder_special' },
+  { title: 'Trabalho Voluntário', contentType: 'text', icon: 'volunteer_activism' },
+  { title: 'Ferramentas', contentType: 'list', icon: 'handyman' },
+  { title: 'Nova Seção', contentType: 'text', icon: 'interests' },
+];
+
+const AVAILABLE_ICONS = [
+  'verified', 'translate', 'folder_special', 'volunteer_activism', 'handyman', 
+  'interests', 'star', 'emoji_events', 'public', 'code', 'terminal', 'palette', 
+  'groups', 'auto_awesome', 'school', 'work', 'language', 'description', 
+  'info', 'sports_esports', 'fitness_center', 'flight', 'camera', 'history_edu'
+];
+
 const Editor: React.FC<EditorProps> = ({ data, onChange }) => {
+  const [showSectionMenu, setShowSectionMenu] = useState(false);
+  const [activeIconPicker, setActiveIconPicker] = useState<string | null>(null);
+  const iconPickerRef = useRef<HTMLDivElement>(null);
+
   const isCustomColor = !PRESET_COLORS.includes(data.theme.primaryColor);
   const capabilities = TEMPLATE_CONFIG[data.theme.template];
+
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (iconPickerRef.current && !iconPickerRef.current.contains(event.target as Node)) {
+        setActiveIconPicker(null);
+      }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
 
   const updatePersonal = (field: keyof ResumeData['personal'], value: string) => {
     onChange({
@@ -101,6 +131,47 @@ const Editor: React.FC<EditorProps> = ({ data, onChange }) => {
     onChange({ ...data, skills: data.skills.filter(s => s !== skill) });
   };
 
+  const addDynamicSection = (template: { title: string; contentType: 'text' | 'list'; icon: string }) => {
+    const newSection: DynamicSection = {
+      id: `sec-${Date.now()}`,
+      title: template.title,
+      contentType: template.contentType,
+      value: template.contentType === 'list' ? [] : '',
+      icon: template.icon
+    };
+    onChange({ ...data, sections: [...data.sections, newSection] });
+    setShowSectionMenu(false);
+  };
+
+  const updateDynamicSection = (id: string, updates: Partial<DynamicSection>) => {
+    onChange({
+      ...data,
+      sections: data.sections.map(s => s.id === id ? { ...s, ...updates } : s)
+    });
+  };
+
+  const removeDynamicSection = (id: string) => {
+    onChange({ ...data, sections: data.sections.filter(s => s.id !== id) });
+  };
+
+  const moveSection = (index: number, direction: 'up' | 'down') => {
+    const newSections = [...data.sections];
+    const targetIndex = direction === 'up' ? index - 1 : index + 1;
+    if (targetIndex >= 0 && targetIndex < newSections.length) {
+      [newSections[index], newSections[targetIndex]] = [newSections[targetIndex], newSections[index]];
+      onChange({ ...data, sections: newSections });
+    }
+  };
+
+  const addListItem = (sectionId: string, itemValue: string) => {
+    const section = data.sections.find(s => s.id === sectionId);
+    if (section && Array.isArray(section.value)) {
+      if (itemValue.trim() && !section.value.includes(itemValue.trim())) {
+        updateDynamicSection(sectionId, { value: [...section.value, itemValue.trim()] });
+      }
+    }
+  };
+
   const inputClass = "w-full rounded-md border-slate-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-sm py-2.5 px-3 transition-all";
   const sectionClass = "bg-white p-4 md:p-6 rounded-xl border border-slate-200 shadow-sm space-y-4 animate-fade-in-up";
   const labelClass = "block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5";
@@ -108,7 +179,6 @@ const Editor: React.FC<EditorProps> = ({ data, onChange }) => {
 
   const renderTemplateMockup = (type: TemplateType) => {
     const primary = data.theme.primaryColor;
-    
     switch (type) {
       case 'minimalist':
         return (
@@ -171,6 +241,7 @@ const Editor: React.FC<EditorProps> = ({ data, onChange }) => {
         <p className="text-slate-500 text-sm">Altere seus dados abaixo e visualize na hora.</p>
       </div>
 
+      {/* Tema e Estilo */}
       <section className={`${sectionClass} delay-100`}>
         <h2 className={sectionTitleClass}>Estilo & Modelo</h2>
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 md:gap-4">
@@ -239,8 +310,6 @@ const Editor: React.FC<EditorProps> = ({ data, onChange }) => {
            <span className="material-symbols-outlined text-blue-600">person</span>
            <h2 className="text-lg font-bold text-slate-900">Pessoal</h2>
         </div>
-
-        {/* Upload de Foto Dinâmico */}
         {capabilities.supportsPhoto && (
           <div className="mb-6 p-4 bg-slate-50 rounded-xl border-2 border-dashed border-slate-200 flex items-center gap-4 md:gap-6 animate-fade-in-up">
             <div className="relative group shrink-0">
@@ -255,7 +324,6 @@ const Editor: React.FC<EditorProps> = ({ data, onChange }) => {
                 <button 
                   onClick={removePhoto}
                   className="absolute -top-2 -right-2 size-6 bg-red-500 text-white rounded-full flex items-center justify-center shadow-lg opacity-0 group-hover:opacity-100 transition-opacity"
-                  title="Remover foto"
                 >
                   <span className="material-symbols-outlined text-[14px]">close</span>
                 </button>
@@ -263,7 +331,6 @@ const Editor: React.FC<EditorProps> = ({ data, onChange }) => {
             </div>
             <div className="flex-1 space-y-2">
               <p className="text-xs font-bold text-slate-700 uppercase tracking-wider">Foto de Perfil</p>
-              <p className="text-[10px] md:text-[11px] text-slate-500 leading-tight">Este modelo permite uma foto profissional para destacar seu perfil.</p>
               <label className="inline-block cursor-pointer px-4 py-1.5 bg-blue-600 text-white rounded-lg text-xs font-bold hover:bg-blue-700 transition-colors shadow-sm active:scale-95">
                 Escolher Imagem
                 <input type="file" className="sr-only" accept="image/*" onChange={handlePhotoUpload} />
@@ -271,7 +338,6 @@ const Editor: React.FC<EditorProps> = ({ data, onChange }) => {
             </div>
           </div>
         )}
-
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div className="col-span-1">
             <label className={labelClass}>Nome Completo</label>
@@ -340,7 +406,7 @@ const Editor: React.FC<EditorProps> = ({ data, onChange }) => {
                 </div>
                 <div className="col-span-1 sm:col-span-2">
                   <label className={labelClass}>Descrição das Atividades</label>
-                  <textarea value={exp.description} onChange={(e) => updateExperience(exp.id, 'description', e.target.value)} className={`${inputClass} h-24 resize-none`} placeholder="Descreva suas responsabilidades e conquistas..." />
+                  <textarea value={exp.description} onChange={(e) => updateExperience(exp.id, 'description', e.target.value)} className={`${inputClass} h-24 resize-none`} placeholder="Descreva suas responsabilidades..." />
                 </div>
               </div>
             </div>
@@ -407,7 +473,7 @@ const Editor: React.FC<EditorProps> = ({ data, onChange }) => {
               <span className="material-symbols-outlined text-[16px]">close</span>
             </span>
           ))}
-          {data.skills.length === 0 && <span className="text-slate-400 text-xs italic">Adicione habilidades técnicas ou interpessoais...</span>}
+          {data.skills.length === 0 && <span className="text-slate-400 text-xs italic">Adicione competências...</span>}
         </div>
         <input 
           placeholder="Digite e aperte Enter..." 
@@ -415,6 +481,141 @@ const Editor: React.FC<EditorProps> = ({ data, onChange }) => {
           onKeyDown={addSkill}
         />
       </section>
+
+      {/* Seções Adicionais Dinâmicas */}
+      <div className="space-y-6">
+        {data.sections.map((section, idx) => (
+          <section key={section.id} className={`${sectionClass} group relative`}>
+            <div className="flex items-center justify-between mb-2">
+              <div className="flex items-center gap-3">
+                <div className="flex flex-col">
+                  <button onClick={() => moveSection(idx, 'up')} disabled={idx === 0} className="text-slate-400 hover:text-blue-500 disabled:opacity-20">
+                    <span className="material-symbols-outlined text-[18px]">keyboard_arrow_up</span>
+                  </button>
+                  <button onClick={() => moveSection(idx, 'down')} disabled={idx === data.sections.length - 1} className="text-slate-400 hover:text-blue-500 disabled:opacity-20">
+                    <span className="material-symbols-outlined text-[18px]">keyboard_arrow_down</span>
+                  </button>
+                </div>
+                <div className="flex items-center gap-2">
+                  <div className="relative">
+                    <button 
+                      onClick={() => setActiveIconPicker(section.id)}
+                      className="size-8 rounded-lg bg-blue-50 text-blue-600 flex items-center justify-center hover:bg-blue-100 transition-colors border border-blue-200"
+                      title="Clique para trocar o ícone"
+                    >
+                      <span className="material-symbols-outlined text-[20px]">{section.icon || 'interests'}</span>
+                    </button>
+                    
+                    {activeIconPicker === section.id && (
+                      <div 
+                        ref={iconPickerRef}
+                        className="absolute top-full left-0 mt-2 p-3 bg-white rounded-xl shadow-2xl border border-slate-200 z-[60] w-56 animate-in slide-in-from-top-2 duration-200"
+                      >
+                        <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-2 border-b border-slate-100 pb-1 text-center">Selecionar Ícone</p>
+                        <div className="grid grid-cols-4 gap-2">
+                          {AVAILABLE_ICONS.map(iconName => (
+                            <button
+                              key={iconName}
+                              onClick={() => {
+                                updateDynamicSection(section.id, { icon: iconName });
+                                setActiveIconPicker(null);
+                              }}
+                              className={`size-10 rounded-lg flex items-center justify-center transition-colors ${section.icon === iconName ? 'bg-blue-600 text-white' : 'hover:bg-slate-100 text-slate-600'}`}
+                            >
+                              <span className="material-symbols-outlined text-[20px]">{iconName}</span>
+                            </button>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                  <input 
+                    value={section.title} 
+                    onChange={(e) => updateDynamicSection(section.id, { title: e.target.value })}
+                    className="bg-transparent border-none p-0 text-lg font-bold text-slate-900 focus:ring-0 w-full"
+                    placeholder="Título da Seção"
+                  />
+                </div>
+              </div>
+              <button onClick={() => removeDynamicSection(section.id)} className="text-slate-300 hover:text-red-500 transition-colors">
+                <span className="material-symbols-outlined text-[20px]">delete</span>
+              </button>
+            </div>
+
+            {section.contentType === 'text' ? (
+              <textarea 
+                value={section.value as string}
+                onChange={(e) => updateDynamicSection(section.id, { value: e.target.value })}
+                className={`${inputClass} h-32 resize-none`}
+                placeholder="Escreva o conteúdo desta seção..."
+              />
+            ) : (
+              <div className="space-y-4">
+                <div className="flex flex-wrap gap-2 min-h-[40px] p-2 rounded-lg bg-slate-50/50">
+                  {(section.value as string[]).map((item) => (
+                    <span key={item} className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-slate-100 text-slate-700 rounded-lg text-xs font-bold group transition-all hover:bg-red-50 hover:text-red-700 cursor-pointer" onClick={() => {
+                      const newList = (section.value as string[]).filter(i => i !== item);
+                      updateDynamicSection(section.id, { value: newList });
+                    }}>
+                      {item}
+                      <span className="material-symbols-outlined text-[16px]">close</span>
+                    </span>
+                  ))}
+                  {(section.value as string[]).length === 0 && <span className="text-slate-400 text-xs italic">Nenhum item adicionado...</span>}
+                </div>
+                <input 
+                  placeholder="Novo item (aperte Enter)..." 
+                  className={inputClass}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter') {
+                      addListItem(section.id, e.currentTarget.value);
+                      e.currentTarget.value = '';
+                    }
+                  }}
+                />
+              </div>
+            )}
+          </section>
+        ))}
+      </div>
+
+      {/* Botão Adicionar Seção */}
+      <div className="relative">
+        <button 
+          onClick={() => setShowSectionMenu(!showSectionMenu)}
+          className="w-full py-4 border-2 border-dashed border-slate-300 rounded-xl text-slate-500 font-bold flex items-center justify-center gap-2 hover:bg-slate-50 transition-all hover:border-blue-400 hover:text-blue-600 group"
+        >
+          <span className="material-symbols-outlined group-hover:rotate-90 transition-transform">add_circle</span>
+          Adicionar Seção Extra
+        </button>
+
+        {showSectionMenu && (
+          <div className="absolute bottom-full left-0 right-0 mb-4 bg-white rounded-2xl shadow-2xl border border-slate-200 overflow-hidden z-20 animate-in slide-in-from-bottom-4 duration-200">
+             <div className="p-3 bg-slate-50 border-b border-slate-100 text-[10px] font-bold text-slate-400 uppercase tracking-widest text-center">
+                O que deseja adicionar?
+             </div>
+             <div className="grid grid-cols-2 p-2 gap-1">
+                {SECTION_TEMPLATES.map(item => (
+                  <button 
+                    key={item.title}
+                    onClick={() => addDynamicSection(item)}
+                    className="flex items-center gap-3 p-3 hover:bg-blue-50 rounded-xl transition-colors text-left group"
+                  >
+                    <div className="size-8 rounded-lg bg-blue-100 flex items-center justify-center text-blue-600 group-hover:bg-blue-600 group-hover:text-white transition-colors">
+                      <span className="material-symbols-outlined text-[20px]">
+                        {item.icon}
+                      </span>
+                    </div>
+                    <div>
+                      <p className="text-xs font-bold text-slate-900">{item.title}</p>
+                      <p className="text-[9px] text-slate-500">{item.contentType === 'list' ? 'Formato lista' : 'Formato texto'}</p>
+                    </div>
+                  </button>
+                ))}
+             </div>
+          </div>
+        )}
+      </div>
     </div>
   );
 };

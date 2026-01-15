@@ -28,6 +28,14 @@ export interface PersonalDetails {
   photo?: string; // String em Base64
 }
 
+export interface DynamicSection {
+  id: string;
+  title: string;
+  contentType: 'text' | 'list';
+  value: string | string[];
+  icon?: string; // Icon identifier for Material Symbols
+}
+
 export type TemplateType = 'minimalist' | 'modern' | 'classic' | 'creative';
 export type FontFamilyType = 'sans' | 'serif' | 'mono';
 
@@ -44,6 +52,7 @@ export interface ResumeData {
   experiences: Experience[];
   educations: Education[];
   skills: string[];
+  sections: DynamicSection[]; // New dynamic sections array
   theme: ThemeConfig;
 }
 

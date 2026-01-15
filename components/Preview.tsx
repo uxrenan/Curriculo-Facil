@@ -1,5 +1,5 @@
 import React from 'react';
-import { ResumeData } from '../types';
+import { ResumeData, DynamicSection } from '../types';
 import { TEMPLATE_CONFIG } from '../constants';
 
 interface PreviewProps {
@@ -8,7 +8,7 @@ interface PreviewProps {
 }
 
 const Preview: React.FC<PreviewProps> = ({ data, isExportVersion = false }) => {
-  const { personal, experiences, educations, skills, theme } = data;
+  const { personal, experiences, educations, skills, sections, theme } = data;
   const capabilities = TEMPLATE_CONFIG[theme.template];
 
   const fontFamilies = {
@@ -33,11 +33,30 @@ const Preview: React.FC<PreviewProps> = ({ data, isExportVersion = false }) => {
     return value;
   };
 
+  // Explicitly defined sub-components to ensure correct prop typing in JSX
   const SectionHeader = ({ title, icon }: { title: string; icon?: string }) => (
     <h2 className={`font-bold uppercase tracking-widest text-slate-400 border-b border-slate-200 pb-1 mb-3 md:mb-4 flex items-center gap-2 ${currentFontSize.h2}`}>
       {capabilities.supportsIcons && icon && <span className="material-symbols-outlined text-[18px]">{icon}</span>}
       {title}
     </h2>
+  );
+
+  // Added 'key' to props definition to satisfy TypeScript when used in .map()
+  const DynamicSectionBlock = ({ section }: { section: DynamicSection; key?: React.Key }) => (
+    <section>
+      <SectionHeader title={section.title} icon={section.icon || 'dashboard_customize'} />
+      {section.contentType === 'text' ? (
+        <p className="text-slate-700 text-xs md:text-sm whitespace-pre-wrap leading-relaxed">{section.value as string}</p>
+      ) : (
+        <div className="flex flex-wrap gap-2">
+          {(section.value as string[]).map((item, i) => (
+            <span key={i} className="px-2 py-1 bg-slate-50 border border-slate-100 rounded text-[10px] md:text-xs text-slate-600 font-medium">
+              {item}
+            </span>
+          ))}
+        </div>
+      )}
+    </section>
   );
 
   const SkillsSection = () => (
@@ -123,6 +142,7 @@ const Preview: React.FC<PreviewProps> = ({ data, isExportVersion = false }) => {
         </div>
       </section>
       <SkillsSection />
+      {sections.map(sec => <DynamicSectionBlock key={sec.id} section={sec} />)}
     </div>
   );
 
@@ -160,6 +180,7 @@ const Preview: React.FC<PreviewProps> = ({ data, isExportVersion = false }) => {
           </div>
         </section>
         <SkillsSection />
+        {sections.filter(s => s.contentType === 'list').map(sec => <DynamicSectionBlock key={sec.id} section={sec} />)}
       </div>
       <div className="flex-1 space-y-6 md:space-y-8">
         <section>
@@ -191,6 +212,7 @@ const Preview: React.FC<PreviewProps> = ({ data, isExportVersion = false }) => {
             ))}
           </div>
         </section>
+        {sections.filter(s => s.contentType === 'text').map(sec => <DynamicSectionBlock key={sec.id} section={sec} />)}
       </div>
     </div>
   );
@@ -233,6 +255,7 @@ const Preview: React.FC<PreviewProps> = ({ data, isExportVersion = false }) => {
           </div>
         </section>
         <SkillsSection />
+        {sections.map(sec => <DynamicSectionBlock key={sec.id} section={sec} />)}
       </div>
     </div>
   );
@@ -277,6 +300,7 @@ const Preview: React.FC<PreviewProps> = ({ data, isExportVersion = false }) => {
               ))}
             </div>
           </section>
+          {sections.filter(s => s.contentType === 'text').map(sec => <DynamicSectionBlock key={sec.id} section={sec} />)}
         </div>
         <div className="md:col-span-4 space-y-6 md:space-y-8">
           <section className="p-4 bg-slate-50 rounded-2xl border border-slate-100 shadow-sm">
@@ -284,12 +308,13 @@ const Preview: React.FC<PreviewProps> = ({ data, isExportVersion = false }) => {
                 <span className="material-symbols-outlined text-[18px]">contact_page</span> Contato
              </h2>
              <div className="text-[11px] md:text-xs space-y-2.5">
-                <p className="flex items-center gap-2"><span className="material-symbols-outlined text-[16px] opacity-60">mail</span> {renderField(personal.email, '{E-mail}')}</p>
+                <p className="flex items-center gap-2 break-all"><span className="material-symbols-outlined text-[16px] opacity-60">mail</span> {renderField(personal.email, '{E-mail}')}</p>
                 <p className="flex items-center gap-2"><span className="material-symbols-outlined text-[16px] opacity-60">phone</span> {renderField(personal.phone, '{Telefone}')}</p>
                 <p className="flex items-center gap-2"><span className="material-symbols-outlined text-[16px] opacity-60">location_on</span> {renderField(personal.location, '{Localização}')}</p>
              </div>
           </section>
           <SkillsSection />
+          {sections.filter(s => s.contentType === 'list').map(sec => <DynamicSectionBlock key={sec.id} section={sec} />)}
         </div>
       </div>
     </div>

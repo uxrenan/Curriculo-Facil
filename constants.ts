@@ -14,6 +14,7 @@ export const INITIAL_DATA: ResumeData = {
   experiences: [],
   educations: [],
   skills: [],
+  sections: [], // Initialize empty sections
   theme: {
     primaryColor: '#2563eb',
     fontSize: 'medium',
