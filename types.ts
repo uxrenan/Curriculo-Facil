@@ -1,3 +1,11 @@
+export interface User {
+  id: string;
+  email: string;
+  name: string;
+}
+
+export type ViewType = 'builder' | 'login';
+
 export interface Experience {
   id: string;
   position: string;

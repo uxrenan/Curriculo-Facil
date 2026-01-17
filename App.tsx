@@ -3,13 +3,18 @@ import Editor from './components/Editor';
 import Preview from './components/Preview';
 import CoverLetterModal from './components/CoverLetterModal';
 import EasterEggGame from './components/EasterEggGame';
+import Login from './components/Login';
 import { INITIAL_DATA } from './constants';
-import { ResumeData } from './types';
+import { ResumeData, User, ViewType } from './types';
 import { GoogleGenAI, Type } from "@google/genai";
 
 const App: React.FC = () => {
   const [data, setData] = useState<ResumeData>(INITIAL_DATA);
+  const [view, setView] = useState<ViewType>('builder');
+  const [user, setUser] = useState<User | null>(null);
+  
   const [isDownloading, setIsDownloading] = useState(false);
+  const [isSaving, setIsSaving] = useState(false);
   const [isAIModalOpen, setIsAIModalOpen] = useState(false);
   const [isCoverLetterModalOpen, setIsCoverLetterModalOpen] = useState(false);
   const [isLinkedInModalOpen, setIsLinkedInModalOpen] = useState(false);
@@ -17,6 +22,7 @@ const App: React.FC = () => {
   const [isEasterEggOpen, setIsEasterEggOpen] = useState(false);
   const [logoClickCount, setLogoClickCount] = useState(0);
   const [isGenerating, setIsGenerating] = useState(false);
+  const [loginMessage, setLoginMessage] = useState('');
   const [aiForm, setAiForm] = useState({ company: '', role: '', description: '' });
   
   const dropdownTriggerRef = useRef<HTMLButtonElement>(null);
@@ -24,6 +30,24 @@ const App: React.FC = () => {
 
   // Mobile View Toggle: 'edit' or 'preview'
   const [viewMode, setViewMode] = useState<'edit' | 'preview'>('edit');
+
+  // Load auth state from local storage
+  useEffect(() => {
+    const savedUser = localStorage.getItem('sc_user');
+    if (savedUser) {
+      setUser(JSON.parse(savedUser));
+    }
+    
+    const savedData = localStorage.getItem('sc_resume_draft');
+    if (savedData) {
+      setData(JSON.parse(savedData));
+    }
+  }, []);
+
+  // Sync draft to local storage
+  useEffect(() => {
+    localStorage.setItem('sc_resume_draft', JSON.stringify(data));
+  }, [data]);
 
   useEffect(() => {
     if (data.personal.fullName && data.personal.fullName.trim() !== '') {
@@ -49,14 +73,47 @@ const App: React.FC = () => {
   }, []);
 
   const handleLogoClick = () => {
+    // Navigate to builder view (Home) on click
+    if (view !== 'builder') {
+      setView('builder');
+    }
+
     const nextCount = logoClickCount + 1;
     if (nextCount >= 3) {
       setIsEasterEggOpen(true);
       setLogoClickCount(0);
     } else {
       setLogoClickCount(nextCount);
+      // Clear counter after 3 seconds of inactivity
       setTimeout(() => setLogoClickCount(0), 3000);
     }
+  };
+
+  const handleLogin = (newUser: User) => {
+    setUser(newUser);
+    localStorage.setItem('sc_user', JSON.stringify(newUser));
+    setView('builder');
+    setLoginMessage('');
+  };
+
+  const handleLogout = () => {
+    setUser(null);
+    localStorage.removeItem('sc_user');
+  };
+
+  const handleSaveProject = () => {
+    if (!user) {
+      setLoginMessage('Você precisa entrar para salvar seus projetos na nuvem.');
+      setView('login');
+      return;
+    }
+
+    setIsSaving(true);
+    // Simulando salvamento
+    setTimeout(() => {
+      setIsSaving(false);
+      alert("Projeto salvo com sucesso!");
+    }, 1500);
   };
 
   const handleDownloadPDF = async () => {
@@ -164,7 +221,7 @@ const App: React.FC = () => {
       <header className="h-16 shrink-0 bg-white border-b border-slate-200 px-4 md:px-6 flex items-center justify-between z-40 shadow-sm animate-fade-in relative">
         <div className="flex items-center gap-3 md:gap-6 shrink-0 animate-fade-in delay-100">
           <div 
-            className="flex items-center gap-[8px] md:gap-[12px] cursor-help transition-transform active:scale-95 select-none"
+            className="flex items-center gap-[8px] md:gap-[12px] cursor-pointer transition-transform active:scale-95 select-none"
             onClick={handleLogoClick}
           >
             <div className="text-blue-600">
@@ -243,6 +300,21 @@ const App: React.FC = () => {
           <div className="hidden sm:block h-8 w-[1px] bg-slate-200 mx-1"></div>
 
           <button 
+            onClick={handleSaveProject}
+            disabled={isSaving}
+            className={`flex items-center gap-2 px-3 py-2 md:px-5 md:py-2 rounded-lg text-sm font-bold transition-all active:scale-95 border ${
+              isSaving 
+              ? 'bg-slate-50 text-slate-400 border-slate-200 cursor-not-allowed' 
+              : 'bg-white text-slate-700 border-slate-300 hover:bg-slate-50'
+            }`}
+          >
+            <span className={`material-symbols-outlined text-[18px] md:text-[20px] ${isSaving ? 'animate-spin' : ''}`}>
+              {isSaving ? 'sync' : 'cloud_upload'}
+            </span>
+            <span className="hidden md:inline">{isSaving ? 'Salvando...' : 'Salvar Projeto'}</span>
+          </button>
+
+          <button 
             onClick={handleDownloadPDF}
             disabled={isDownloading}
             title="Baixar em PDF"
@@ -257,32 +329,67 @@ const App: React.FC = () => {
             </span>
             <span className="hidden md:inline">{isDownloading ? 'Gerando...' : 'Baixar PDF'}</span>
           </button>
+
+          {/* User Section in Header - Moved to Far Right */}
+          {user ? (
+            <div className="flex items-center gap-2 md:gap-3 group relative cursor-pointer ml-1 md:ml-2">
+              <div className="size-8 md:size-9 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center font-bold text-xs ring-2 ring-white shadow-sm transition-transform hover:scale-105">
+                {user.name.charAt(0).toUpperCase()}
+              </div>
+              <div className="hidden sm:flex flex-col">
+                <span className="text-[10px] font-bold text-slate-900 leading-tight">Olá, {user.name.split(' ')[0]}</span>
+                <button onClick={handleLogout} className="text-[9px] text-slate-400 font-medium hover:text-red-500 transition-colors text-left leading-tight">Sair</button>
+              </div>
+            </div>
+          ) : (
+            <button 
+              onClick={() => setView('login')}
+              className="flex items-center gap-2 px-3 py-2 md:px-4 md:py-2 rounded-lg text-xs font-bold text-slate-700 border border-slate-200 bg-white hover:bg-slate-50 transition-all active:scale-95 ml-1 md:ml-2"
+            >
+              <span className="material-symbols-outlined text-[18px]">login</span>
+              <span className="hidden sm:inline">ENTRAR</span>
+            </button>
+          )}
         </div>
       </header>
 
-      <main className="flex-1 flex flex-col lg:flex-row overflow-hidden relative">
-        <div className={`flex-1 overflow-y-auto p-4 md:p-8 custom-scrollbar bg-slate-50 border-r border-slate-200 ${viewMode === 'preview' ? 'hidden lg:block' : 'block animate-fade-in-up delay-200'}`}>
-          <Editor data={data} onChange={setData} />
-        </div>
-        <div className={`flex-1 bg-slate-200 overflow-y-auto flex justify-center items-start p-4 md:p-12 custom-scrollbar ${viewMode === 'edit' ? 'hidden lg:flex' : 'flex animate-fade-in delay-300'}`}>
-          <div className="hidden xl:block fixed top-20 right-12 z-20 animate-fade-in delay-500">
-            <div className="bg-white/80 backdrop-blur-sm p-3 rounded-xl border border-slate-300 shadow-sm">
-               <p className="text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-1">Formato</p>
-               <p className="text-xs font-bold text-slate-800">A4 Padrão</p>
-            </div>
+      {view === 'builder' ? (
+        <main className="flex-1 flex flex-col lg:flex-row overflow-hidden relative">
+          <div className={`flex-1 overflow-y-auto p-4 md:p-8 custom-scrollbar bg-slate-50 border-r border-slate-200 ${viewMode === 'preview' ? 'hidden lg:block' : 'block animate-fade-in-up delay-200'}`}>
+            <Editor data={data} onChange={setData} />
           </div>
-          <Preview data={data} />
-        </div>
+          <div className={`flex-1 bg-slate-200 overflow-y-auto flex justify-center items-start p-4 md:p-12 custom-scrollbar ${viewMode === 'edit' ? 'hidden lg:flex' : 'flex animate-fade-in delay-300'}`}>
+            <div className="hidden xl:block fixed top-20 right-12 z-20 animate-fade-in delay-500">
+              <div className="bg-white/80 backdrop-blur-sm p-3 rounded-xl border border-slate-300 shadow-sm">
+                 <p className="text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-1">Formato</p>
+                 <p className="text-xs font-bold text-slate-800">A4 Padrão</p>
+              </div>
+            </div>
+            <Preview data={data} />
+          </div>
 
-        <div className="lg:hidden fixed bottom-6 left-1/2 -translate-x-1/2 flex bg-white/90 backdrop-blur shadow-2xl rounded-full p-1 border border-slate-200 z-40 ring-1 ring-black/5 animate-fade-in-up delay-400">
-           <button onClick={() => setViewMode('edit')} className={`flex items-center gap-2 px-6 py-2.5 rounded-full text-xs font-bold transition-all ${viewMode === 'edit' ? 'bg-blue-600 text-white shadow-lg' : 'text-slate-500'}`}>
-             <span className="material-symbols-outlined text-[18px]">edit</span> EDITOR
-           </button>
-           <button onClick={() => setViewMode('preview')} className={`flex items-center gap-2 px-6 py-2.5 rounded-full text-xs font-bold transition-all ${viewMode === 'preview' ? 'bg-blue-600 text-white shadow-lg' : 'text-slate-500'}`}>
-             <span className="material-symbols-outlined text-[18px]">visibility</span> PRÉVIA
-           </button>
-        </div>
-      </main>
+          {/* Mobile Bottom Navigation */}
+          <div className="lg:hidden fixed bottom-6 left-1/2 -translate-x-1/2 flex bg-white/90 backdrop-blur shadow-2xl rounded-full p-1 border border-slate-200 z-40 ring-1 ring-black/5 animate-fade-in-up delay-400">
+             <button onClick={() => setViewMode('edit')} className={`flex items-center gap-2 px-6 py-2.5 rounded-full text-xs font-bold transition-all ${viewMode === 'edit' ? 'bg-blue-600 text-white shadow-lg' : 'text-slate-500'}`}>
+               <span className="material-symbols-outlined text-[18px]">edit</span> EDITOR
+             </button>
+             <button onClick={() => setViewMode('preview')} className={`flex items-center gap-2 px-6 py-2.5 rounded-full text-xs font-bold transition-all ${viewMode === 'preview' ? 'bg-blue-600 text-white shadow-lg' : 'text-slate-500'}`}>
+               <span className="material-symbols-outlined text-[18px]">visibility</span> PRÉVIA
+             </button>
+             {!user && (
+               <button onClick={() => setView('login')} className="flex items-center gap-2 px-4 py-2.5 rounded-full text-xs font-bold text-blue-600">
+                 <span className="material-symbols-outlined text-[18px]">login</span>
+               </button>
+             )}
+          </div>
+        </main>
+      ) : (
+        <Login 
+          onLogin={handleLogin} 
+          onBack={() => setView('builder')} 
+          initialMessage={loginMessage}
+        />
+      )}
 
       <CoverLetterModal isOpen={isCoverLetterModalOpen} onClose={() => setIsCoverLetterModalOpen(false)} resumeData={data} />
       <EasterEggGame isOpen={isEasterEggOpen} onClose={() => setIsEasterEggOpen(false)} />
