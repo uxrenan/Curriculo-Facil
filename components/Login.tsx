@@ -15,20 +15,40 @@ const Login: React.FC<LoginProps> = ({ onLogin, onBack, initialMessage }) => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
     setError(null);
     
-    // Simulating login
-    setTimeout(() => {
-      onLogin({
-        id: Math.random().toString(36).substr(2, 9),
-        email,
-        name: isRegistering ? name : (email.split('@')[0] || 'Usuário'),
+    try {
+      // Delegates authentication entirely to the backend.
+      // In a real environment, the backend would validate credentials and set a secure session cookie.
+      const endpoint = isRegistering ? '/api/auth/register' : '/api/auth/login';
+      const response = await fetch(endpoint, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, password, name: isRegistering ? name : undefined })
       });
+
+      if (!response.ok) {
+        const errData = await response.json().catch(() => ({}));
+        throw new Error(errData.message || 'Falha na autenticação.');
+      }
+
+      const userData: User = await response.json();
+      onLogin(userData);
+    } catch (err: any) {
+      // To keep the UI working during development/demo, we report the error.
+      // Without an actual backend, this will fail as intended by the requirements.
+      setError(err.message || 'Erro de conexão com o servidor de autenticação.');
+    } finally {
       setLoading(false);
-    }, 1500);
+    }
+  };
+
+  const handleGoogleLogin = () => {
+    // Redirects to backend OAuth flow.
+    window.location.href = '/api/auth/google';
   };
 
   return (
@@ -102,7 +122,7 @@ const Login: React.FC<LoginProps> = ({ onLogin, onBack, initialMessage }) => {
               className="w-full py-3 bg-blue-600 text-white rounded-xl font-bold hover:bg-blue-700 transition-all active:scale-95 shadow-lg shadow-blue-500/25 flex items-center justify-center gap-2"
             >
               {loading ? (
-                <span className="material-symbols-outlined animate-spin">sync</span>
+                <span className="material-symbols-outlined animate-spin text-[20px]">sync</span>
               ) : (
                 isRegistering ? 'Criar Conta' : 'Entrar'
               )}
@@ -120,8 +140,8 @@ const Login: React.FC<LoginProps> = ({ onLogin, onBack, initialMessage }) => {
 
           <button 
             type="button"
-            className="w-full py-3 bg-white text-slate-700 border border-slate-200 rounded-xl font-bold hover:bg-slate-50 transition-all active:scale-95 flex items-center justify-center gap-3 opacity-50 cursor-not-allowed"
-            title="Google Login desativado (Mock Mode)"
+            onClick={handleGoogleLogin}
+            className="w-full py-3 bg-white text-slate-700 border border-slate-200 rounded-xl font-bold hover:bg-slate-50 transition-all active:scale-95 flex items-center justify-center gap-3"
           >
             <svg width="20" height="20" viewBox="0 0 24 24">
               <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
