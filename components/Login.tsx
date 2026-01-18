@@ -1,19 +1,25 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { User } from '../types';
 
 interface LoginProps {
   onLogin: (user: User) => void;
   onBack: () => void;
   initialMessage?: string;
+  initialIsRegistering?: boolean;
 }
 
-const Login: React.FC<LoginProps> = ({ onLogin, onBack, initialMessage }) => {
-  const [isRegistering, setIsRegistering] = useState(false);
+const Login: React.FC<LoginProps> = ({ onLogin, onBack, initialMessage, initialIsRegistering = false }) => {
+  const [isRegistering, setIsRegistering] = useState(initialIsRegistering);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [name, setName] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
+  // Synchronize state if prop changes while component is mounted
+  useEffect(() => {
+    setIsRegistering(initialIsRegistering);
+  }, [initialIsRegistering]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -21,6 +27,7 @@ const Login: React.FC<LoginProps> = ({ onLogin, onBack, initialMessage }) => {
     setError(null);
     
     try {
+      // Delegates authentication entirely to the backend via API calls.
       const endpoint = isRegistering ? '/api/auth/register' : '/api/auth/login';
       const response = await fetch(endpoint, {
         method: 'POST',
@@ -30,20 +37,20 @@ const Login: React.FC<LoginProps> = ({ onLogin, onBack, initialMessage }) => {
 
       if (!response.ok) {
         const errData = await response.json().catch(() => ({}));
-        throw new Error(errData.message || 'Credenciais inválidas ou erro no servidor.');
+        throw new Error(errData.message || 'Falha na autenticação.');
       }
 
       const userData: User = await response.json();
       onLogin(userData);
     } catch (err: any) {
-      setError(err.message || 'Não foi possível conectar ao servidor de autenticação.');
+      setError(err.message || 'Erro de conexão com o servidor de autenticação.');
     } finally {
       setLoading(false);
     }
   };
 
   const handleGoogleLogin = () => {
-    // Standard OAuth redirect to backend
+    // Redirects to backend OAuth flow.
     window.location.href = '/api/auth/google';
   };
 

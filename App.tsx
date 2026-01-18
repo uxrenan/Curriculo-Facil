@@ -16,6 +16,7 @@ const App: React.FC = () => {
   const [user, setUser] = useState<User | null>(null);
   const [savedTemplates, setSavedTemplates] = useState<SavedResume[]>([]);
   const [isInitializing, setIsInitializing] = useState(true);
+  const [loginIsRegistering, setLoginIsRegistering] = useState(false);
   
   const [isDownloading, setIsDownloading] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
@@ -35,7 +36,6 @@ const App: React.FC = () => {
 
   useEffect(() => {
     // Revalidation with the backend on page load.
-    // The frontend never assumes a user is authenticated without explicit backend confirmation.
     const checkSession = async () => {
       try {
         const response = await fetch('/api/auth/me');
@@ -125,12 +125,12 @@ const App: React.FC = () => {
     if (!user) {
       setLoginMessage('Você precisa entrar para salvar seus projetos na nuvem.');
       setPostLoginView('builder');
+      setLoginIsRegistering(false);
       setView('login');
       return;
     }
 
     setIsSaving(true);
-    // Persist to local for demo, backend would handle database storage.
     setTimeout(() => {
       const resumeName = data.personal.fullName || 'Currículo sem nome';
       const existingIndex = savedTemplates.findIndex(t => t.name === resumeName);
@@ -324,11 +324,11 @@ const App: React.FC = () => {
             </div>
           ) : (
             <div className="flex items-center gap-2 ml-1 md:ml-2">
-              <button onClick={() => { setPostLoginView('builder'); setView('login'); }} className="flex items-center gap-2 px-4 py-2 rounded-lg text-xs font-bold text-blue-600 border border-blue-100 bg-blue-50 hover:bg-blue-100 transition-all active:scale-95">
+              <button onClick={() => { setPostLoginView('builder'); setLoginIsRegistering(false); setView('login'); }} className="flex items-center gap-2 px-4 py-2 rounded-lg text-xs font-bold text-blue-600 border border-blue-100 bg-blue-50 hover:bg-blue-100 transition-all active:scale-95">
                 <span className="material-symbols-outlined text-[18px]">login</span>
                 <span className="hidden sm:inline">ENTRAR</span>
               </button>
-              <button onClick={() => { setPostLoginView('builder'); setView('login'); }} className="flex items-center gap-2 px-4 py-2 rounded-lg text-xs font-bold text-white bg-blue-600 hover:bg-blue-700 transition-all active:scale-95 shadow-sm">
+              <button onClick={() => { setPostLoginView('builder'); setLoginIsRegistering(true); setView('login'); }} className="flex items-center gap-2 px-4 py-2 rounded-lg text-xs font-bold text-white bg-blue-600 hover:bg-blue-700 transition-all active:scale-95 shadow-sm">
                 <span className="hidden sm:inline">CRIAR CONTA</span>
                 <span className="sm:hidden material-symbols-outlined text-[18px]">person_add</span>
               </button>
@@ -355,9 +355,9 @@ const App: React.FC = () => {
           </div>
         </main>
       ) : view === 'login' ? (
-        <Login onLogin={handleLogin} onBack={() => setView('builder')} initialMessage={loginMessage} />
+        <Login onLogin={handleLogin} onBack={() => setView('builder')} initialMessage={loginMessage} initialIsRegistering={loginIsRegistering} />
       ) : (
-        <TemplatesList templates={sortedTemplates} onLoad={handleLoadTemplate} onDelete={handleDeleteTemplate} onBack={() => setView('builder')} isAuthenticated={!!user} onLoginClick={() => { setPostLoginView('templates'); setView('login'); }} />
+        <TemplatesList templates={sortedTemplates} onLoad={handleLoadTemplate} onDelete={handleDeleteTemplate} onBack={() => setView('builder')} isAuthenticated={!!user} onLoginClick={() => { setPostLoginView('templates'); setLoginIsRegistering(false); setView('login'); }} />
       )}
 
       <CoverLetterModal isOpen={isCoverLetterModalOpen} onClose={() => setIsCoverLetterModalOpen(false)} resumeData={data} />
