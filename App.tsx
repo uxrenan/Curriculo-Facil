@@ -4,14 +4,17 @@ import Preview from './components/Preview';
 import CoverLetterModal from './components/CoverLetterModal';
 import EasterEggGame from './components/EasterEggGame';
 import Login from './components/Login';
+import TemplatesList from './components/TemplatesList';
 import { INITIAL_DATA } from './constants';
-import { ResumeData, User, ViewType } from './types';
+import { ResumeData, User, ViewType, SavedResume } from './types';
 import { GoogleGenAI, Type } from "@google/genai";
 
 const App: React.FC = () => {
   const [data, setData] = useState<ResumeData>(INITIAL_DATA);
   const [view, setView] = useState<ViewType>('builder');
+  const [postLoginView, setPostLoginView] = useState<ViewType>('builder');
   const [user, setUser] = useState<User | null>(null);
+  const [savedTemplates, setSavedTemplates] = useState<SavedResume[]>([]);
   
   const [isDownloading, setIsDownloading] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
@@ -31,7 +34,7 @@ const App: React.FC = () => {
   // Mobile View Toggle: 'edit' or 'preview'
   const [viewMode, setViewMode] = useState<'edit' | 'preview'>('edit');
 
-  // Load auth state from local storage
+  // Load auth state and templates from local storage
   useEffect(() => {
     const savedUser = localStorage.getItem('sc_user');
     if (savedUser) {
@@ -42,12 +45,22 @@ const App: React.FC = () => {
     if (savedData) {
       setData(JSON.parse(savedData));
     }
+
+    const templates = localStorage.getItem('sc_templates');
+    if (templates) {
+      setSavedTemplates(JSON.parse(templates));
+    }
   }, []);
 
   // Sync draft to local storage
   useEffect(() => {
     localStorage.setItem('sc_resume_draft', JSON.stringify(data));
   }, [data]);
+
+  // Sync templates to local storage
+  useEffect(() => {
+    localStorage.setItem('sc_templates', JSON.stringify(savedTemplates));
+  }, [savedTemplates]);
 
   useEffect(() => {
     if (data.personal.fullName && data.personal.fullName.trim() !== '') {
@@ -92,28 +105,60 @@ const App: React.FC = () => {
   const handleLogin = (newUser: User) => {
     setUser(newUser);
     localStorage.setItem('sc_user', JSON.stringify(newUser));
-    setView('builder');
+    setView(postLoginView);
+    setPostLoginView('builder'); // Reset for next time
     setLoginMessage('');
   };
 
   const handleLogout = () => {
     setUser(null);
     localStorage.removeItem('sc_user');
+    setView('login');
   };
 
   const handleSaveProject = () => {
     if (!user) {
       setLoginMessage('Você precisa entrar para salvar seus projetos na nuvem.');
+      setPostLoginView('builder');
       setView('login');
       return;
     }
 
     setIsSaving(true);
-    // Simulando salvamento
+    
+    // Simulating save logic
     setTimeout(() => {
+      const resumeName = data.personal.fullName || 'Currículo sem nome';
+      const existingIndex = savedTemplates.findIndex(t => t.name === resumeName);
+      
+      const newTemplate: SavedResume = {
+        id: existingIndex >= 0 ? savedTemplates[existingIndex].id : Math.random().toString(36).substr(2, 9),
+        name: resumeName,
+        lastModified: Date.now(),
+        data: { ...data }
+      };
+
+      if (existingIndex >= 0) {
+        const updated = [...savedTemplates];
+        updated[existingIndex] = newTemplate;
+        setSavedTemplates(updated);
+      } else {
+        setSavedTemplates([newTemplate, ...savedTemplates]);
+      }
+
       setIsSaving(false);
-      alert("Projeto salvo com sucesso!");
-    }, 1500);
+    }, 1200);
+  };
+
+  const handleLoadTemplate = (template: SavedResume) => {
+    setData(template.data);
+    setView('builder');
+  };
+
+  const handleDeleteTemplate = (id: string) => {
+    if (confirm("Tem certeza que deseja excluir este template?")) {
+      setSavedTemplates(prev => prev.filter(t => t.id !== id));
+    }
   };
 
   const handleDownloadPDF = async () => {
@@ -211,6 +256,8 @@ const App: React.FC = () => {
     }
   };
 
+  const sortedTemplates = [...savedTemplates].sort((a, b) => b.lastModified - a.lastModified);
+
   return (
     <div className="flex flex-col h-screen overflow-hidden bg-slate-50">
       
@@ -300,18 +347,17 @@ const App: React.FC = () => {
           <div className="hidden sm:block h-8 w-[1px] bg-slate-200 mx-1"></div>
 
           <button 
-            onClick={handleSaveProject}
-            disabled={isSaving}
+            onClick={() => setView('templates')}
             className={`flex items-center gap-2 px-3 py-2 md:px-5 md:py-2 rounded-lg text-sm font-bold transition-all active:scale-95 border ${
-              isSaving 
-              ? 'bg-slate-50 text-slate-400 border-slate-200 cursor-not-allowed' 
+              view === 'templates'
+              ? 'bg-blue-600 text-white border-blue-600'
               : 'bg-white text-slate-700 border-slate-300 hover:bg-slate-50'
             }`}
           >
-            <span className={`material-symbols-outlined text-[18px] md:text-[20px] ${isSaving ? 'animate-spin' : ''}`}>
-              {isSaving ? 'sync' : 'cloud_upload'}
+            <span className="material-symbols-outlined text-[18px] md:text-[20px]">
+              folder_open
             </span>
-            <span className="hidden md:inline">{isSaving ? 'Salvando...' : 'Salvar Projeto'}</span>
+            <span className="hidden md:inline">Meus templates</span>
           </button>
 
           <button 
@@ -343,7 +389,7 @@ const App: React.FC = () => {
             </div>
           ) : (
             <button 
-              onClick={() => setView('login')}
+              onClick={() => { setPostLoginView('builder'); setView('login'); }}
               className="flex items-center gap-2 px-3 py-2 md:px-4 md:py-2 rounded-lg text-xs font-bold text-slate-700 border border-slate-200 bg-white hover:bg-slate-50 transition-all active:scale-95 ml-1 md:ml-2"
             >
               <span className="material-symbols-outlined text-[18px]">login</span>
@@ -365,7 +411,7 @@ const App: React.FC = () => {
                  <p className="text-xs font-bold text-slate-800">A4 Padrão</p>
               </div>
             </div>
-            <Preview data={data} />
+            <Preview data={data} onSave={handleSaveProject} isSaving={isSaving} />
           </div>
 
           {/* Mobile Bottom Navigation */}
@@ -377,17 +423,29 @@ const App: React.FC = () => {
                <span className="material-symbols-outlined text-[18px]">visibility</span> PRÉVIA
              </button>
              {!user && (
-               <button onClick={() => setView('login')} className="flex items-center gap-2 px-4 py-2.5 rounded-full text-xs font-bold text-blue-600">
+               <button onClick={() => { setPostLoginView('builder'); setView('login'); }} className="flex items-center gap-2 px-4 py-2.5 rounded-full text-xs font-bold text-blue-600">
                  <span className="material-symbols-outlined text-[18px]">login</span>
                </button>
              )}
           </div>
         </main>
-      ) : (
+      ) : view === 'login' ? (
         <Login 
           onLogin={handleLogin} 
           onBack={() => setView('builder')} 
           initialMessage={loginMessage}
+        />
+      ) : (
+        <TemplatesList 
+          templates={sortedTemplates}
+          onLoad={handleLoadTemplate}
+          onDelete={handleDeleteTemplate}
+          onBack={() => setView('builder')}
+          isAuthenticated={!!user}
+          onLoginClick={() => {
+            setPostLoginView('templates');
+            setView('login');
+          }}
         />
       )}
 

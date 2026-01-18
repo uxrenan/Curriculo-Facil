@@ -5,9 +5,11 @@ import { TEMPLATE_CONFIG } from '../constants';
 interface PreviewProps {
   data: ResumeData;
   isExportVersion?: boolean;
+  onSave?: () => void;
+  isSaving?: boolean;
 }
 
-const Preview: React.FC<PreviewProps> = ({ data, isExportVersion = false }) => {
+const Preview: React.FC<PreviewProps> = ({ data, isExportVersion = false, onSave, isSaving = false }) => {
   const { personal, experiences, educations, skills, sections, theme } = data;
   const capabilities = TEMPLATE_CONFIG[theme.template];
 
@@ -33,7 +35,6 @@ const Preview: React.FC<PreviewProps> = ({ data, isExportVersion = false }) => {
     return value;
   };
 
-  // Explicitly defined sub-components to ensure correct prop typing in JSX
   const SectionHeader = ({ title, icon }: { title: string; icon?: string }) => (
     <h2 className={`font-bold uppercase tracking-widest text-slate-400 border-b border-slate-200 pb-1 mb-3 md:mb-4 flex items-center gap-2 ${currentFontSize.h2}`}>
       {capabilities.supportsIcons && icon && <span className="material-symbols-outlined text-[18px]">{icon}</span>}
@@ -41,7 +42,6 @@ const Preview: React.FC<PreviewProps> = ({ data, isExportVersion = false }) => {
     </h2>
   );
 
-  // Added 'key' to props definition to satisfy TypeScript when used in .map()
   const DynamicSectionBlock = ({ section }: { section: DynamicSection; key?: React.Key }) => (
     <section>
       <SectionHeader title={section.title} icon={section.icon || 'dashboard_customize'} />
@@ -329,10 +329,28 @@ const Preview: React.FC<PreviewProps> = ({ data, isExportVersion = false }) => {
 
   const containerClasses = isExportVersion 
     ? `bg-white w-[210mm] min-h-[297mm] p-[15mm] mx-auto ${currentFontSize.base} ${currentFontFamily}`
-    : `bg-white shadow-2xl mx-auto w-full max-w-[800px] min-h-fit md:min-h-[1130px] p-6 md:p-12 transition-all duration-300 ${currentFontSize.base} ${currentFontFamily} rounded-xl md:rounded-none animate-template-change`;
+    : `bg-white shadow-2xl mx-auto w-full max-w-[800px] min-h-fit md:min-h-[1130px] p-6 md:p-12 transition-all duration-300 ${currentFontSize.base} ${currentFontFamily} rounded-xl md:rounded-none animate-template-change relative`;
 
   return (
     <div key={theme.template} id={isExportVersion ? "resume-export-target" : "resume-preview"} className={containerClasses}>
+      {!isExportVersion && onSave && (
+        <div className="absolute top-4 right-4 z-30">
+          <button 
+            onClick={onSave}
+            disabled={isSaving}
+            className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-bold shadow-xl transition-all active:scale-95 border ${
+              isSaving 
+              ? 'bg-slate-50 text-slate-400 border-slate-200 cursor-not-allowed' 
+              : 'bg-white text-blue-600 border-blue-100 hover:bg-blue-50'
+            }`}
+          >
+            <span className={`material-symbols-outlined text-[18px] md:text-[20px] ${isSaving ? 'animate-spin' : ''}`}>
+              {isSaving ? 'sync' : 'cloud_upload'}
+            </span>
+            <span>{isSaving ? 'Salvando...' : 'Salvar currículo'}</span>
+          </button>
+        </div>
+      )}
       {templates[theme.template]()}
     </div>
   );

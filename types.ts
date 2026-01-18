@@ -4,7 +4,7 @@ export interface User {
   name: string;
 }
 
-export type ViewType = 'builder' | 'login';
+export type ViewType = 'builder' | 'login' | 'templates';
 
 export interface Experience {
   id: string;
@@ -62,6 +62,13 @@ export interface ResumeData {
   skills: string[];
   sections: DynamicSection[]; // New dynamic sections array
   theme: ThemeConfig;
+}
+
+export interface SavedResume {
+  id: string;
+  name: string;
+  lastModified: number;
+  data: ResumeData;
 }
 
 export type ToneType = 'Professional' | 'Formal' | 'Friendly' | 'Objective';
