@@ -21,8 +21,6 @@ const Login: React.FC<LoginProps> = ({ onLogin, onBack, initialMessage }) => {
     setError(null);
     
     try {
-      // Delegates authentication entirely to the backend.
-      // In a real environment, the backend would validate credentials and set a secure session cookie.
       const endpoint = isRegistering ? '/api/auth/register' : '/api/auth/login';
       const response = await fetch(endpoint, {
         method: 'POST',
@@ -32,22 +30,20 @@ const Login: React.FC<LoginProps> = ({ onLogin, onBack, initialMessage }) => {
 
       if (!response.ok) {
         const errData = await response.json().catch(() => ({}));
-        throw new Error(errData.message || 'Falha na autenticação.');
+        throw new Error(errData.message || 'Credenciais inválidas ou erro no servidor.');
       }
 
       const userData: User = await response.json();
       onLogin(userData);
     } catch (err: any) {
-      // To keep the UI working during development/demo, we report the error.
-      // Without an actual backend, this will fail as intended by the requirements.
-      setError(err.message || 'Erro de conexão com o servidor de autenticação.');
+      setError(err.message || 'Não foi possível conectar ao servidor de autenticação.');
     } finally {
       setLoading(false);
     }
   };
 
   const handleGoogleLogin = () => {
-    // Redirects to backend OAuth flow.
+    // Standard OAuth redirect to backend
     window.location.href = '/api/auth/google';
   };
 
@@ -69,12 +65,12 @@ const Login: React.FC<LoginProps> = ({ onLogin, onBack, initialMessage }) => {
               {isRegistering ? 'Criar sua conta' : 'Entrar no Simplescurriculo'}
             </h2>
             <p className="text-slate-500 text-sm mt-2">
-              {initialMessage || 'Salve seus currículos e acesse de qualquer lugar.'}
+              {initialMessage || 'Acesse seus currículos salvos com segurança.'}
             </p>
           </div>
 
           {error && (
-            <div className="mb-4 p-3 bg-red-50 border border-red-100 rounded-lg text-red-600 text-xs font-medium">
+            <div className="mb-4 p-3 bg-red-50 border border-red-100 rounded-lg text-red-600 text-xs font-medium animate-fade-in">
               {error}
             </div>
           )}
@@ -119,7 +115,7 @@ const Login: React.FC<LoginProps> = ({ onLogin, onBack, initialMessage }) => {
             <button 
               type="submit" 
               disabled={loading}
-              className="w-full py-3 bg-blue-600 text-white rounded-xl font-bold hover:bg-blue-700 transition-all active:scale-95 shadow-lg shadow-blue-500/25 flex items-center justify-center gap-2"
+              className="w-full py-3 bg-blue-600 text-white rounded-xl font-bold hover:bg-blue-700 transition-all active:scale-95 shadow-lg shadow-blue-500/25 flex items-center justify-center gap-2 disabled:opacity-50"
             >
               {loading ? (
                 <span className="material-symbols-outlined animate-spin text-[20px]">sync</span>

@@ -21,7 +21,6 @@ const App: React.FC = () => {
   const [isSaving, setIsSaving] = useState(false);
   const [isAIModalOpen, setIsAIModalOpen] = useState(false);
   const [isCoverLetterModalOpen, setIsCoverLetterModalOpen] = useState(false);
-  const [isLinkedInModalOpen, setIsLinkedInModalOpen] = useState(false);
   const [isAIDropdownOpen, setIsAIDropdownOpen] = useState(false);
   const [isEasterEggOpen, setIsEasterEggOpen] = useState(false);
   const [logoClickCount, setLogoClickCount] = useState(0);
@@ -35,17 +34,19 @@ const App: React.FC = () => {
   const [viewMode, setViewMode] = useState<'edit' | 'preview'>('edit');
 
   useEffect(() => {
-    // Session validation must be handled exclusively by the backend.
-    // The frontend sends a request to check for a valid session (e.g., via secure cookies).
+    // Revalidation with the backend on page load.
+    // The frontend never assumes a user is authenticated without explicit backend confirmation.
     const checkSession = async () => {
       try {
         const response = await fetch('/api/auth/me');
         if (response.ok) {
           const userData = await response.json();
           setUser(userData);
+        } else {
+          setUser(null);
         }
       } catch (err) {
-        console.warn("Backend authentication server not reachable or session invalid.");
+        setUser(null);
       } finally {
         setIsInitializing(false);
       }
@@ -53,6 +54,7 @@ const App: React.FC = () => {
 
     checkSession();
     
+    // Draft and local templates loading
     const savedData = localStorage.getItem('sc_resume_draft');
     if (savedData) {
       setData(JSON.parse(savedData));
@@ -111,10 +113,12 @@ const App: React.FC = () => {
   };
 
   const handleLogout = async () => {
-    // Signals the backend to clear session.
-    await fetch('/api/auth/logout', { method: 'POST' }).catch(() => {});
-    setUser(null);
-    setView('builder');
+    try {
+      await fetch('/api/auth/logout', { method: 'POST' });
+    } finally {
+      setUser(null);
+      setView('builder');
+    }
   };
 
   const handleSaveProject = () => {
@@ -126,6 +130,7 @@ const App: React.FC = () => {
     }
 
     setIsSaving(true);
+    // Persist to local for demo, backend would handle database storage.
     setTimeout(() => {
       const resumeName = data.personal.fullName || 'Currículo sem nome';
       const existingIndex = savedTemplates.findIndex(t => t.name === resumeName);
@@ -190,12 +195,12 @@ const App: React.FC = () => {
     setIsGenerating(true);
     try {
       const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
-      const prompt = `Com base no cargo "${aiForm.role}" na empresa "${aiForm.company || 'não informada'}" e na seguinte descrição de vaga: "${aiForm.description}". Otimize o currículo...`;
+      const prompt = `Com base no cargo "${aiForm.role}" na empresa "${aiForm.company || 'não informada'}" e na seguinte descrição de vaga: "${aiForm.description}". Otimize o currículo profissional visando os melhores resultados.`;
       const response = await ai.models.generateContent({
         model: 'gemini-3-pro-preview',
         contents: prompt,
         config: {
-          systemInstruction: "Retorne os dados em formato JSON seguindo estritamente a estrutura solicitada.",
+          systemInstruction: "Retorne os dados em formato JSON seguindo a estrutura de currículo definida.",
           responseMimeType: "application/json",
           responseSchema: {
             type: Type.OBJECT,
@@ -210,12 +215,10 @@ const App: React.FC = () => {
                     position: { type: Type.STRING },
                     company: { type: Type.STRING },
                     description: { type: Type.STRING }
-                  },
-                  required: ["position", "company", "description"]
+                  }
                 }
               }
-            },
-            required: ["summary", "skills", "experiences"]
+            }
           }
         }
       });
@@ -223,14 +226,14 @@ const App: React.FC = () => {
       setData({
         ...data,
         personal: { ...data.personal, summary: result.summary, jobTitle: aiForm.role },
-        skills: result.skills,
-        experiences: result.experiences.map((exp: any, index: number) => ({
+        skills: result.skills || data.skills,
+        experiences: result.experiences ? result.experiences.map((exp: any, index: number) => ({
           ...exp,
           id: `ai-exp-${index}-${Date.now()}`,
           location: 'Remoto',
           startDate: 'Início',
           endDate: 'Fim'
-        }))
+        })) : data.experiences
       });
       setIsAIModalOpen(false);
     } catch (error) {
@@ -248,7 +251,7 @@ const App: React.FC = () => {
       <div className="h-screen w-screen flex items-center justify-center bg-slate-50">
         <div className="flex flex-col items-center gap-4">
           <span className="material-symbols-outlined text-4xl text-blue-600 animate-spin">sync</span>
-          <p className="text-slate-500 font-bold uppercase tracking-widest text-[10px]">Verificando Sessão...</p>
+          <p className="text-slate-500 font-bold uppercase tracking-widest text-[10px]">Autenticando...</p>
         </div>
       </div>
     );
@@ -288,24 +291,18 @@ const App: React.FC = () => {
           <div className="relative">
             <button ref={dropdownTriggerRef} onClick={() => setIsAIDropdownOpen(!isAIDropdownOpen)} className="flex items-center gap-2 px-3 py-2 md:px-4 md:py-2 rounded-lg text-sm font-bold border transition-all active:scale-95 border-blue-200 text-blue-600 bg-blue-50 hover:bg-blue-100">
               <span className="material-symbols-outlined text-[18px] md:text-[20px]">auto_awesome</span>
-              <span className="hidden sm:inline">Ferramentas de IA</span>
+              <span className="hidden sm:inline">IA</span>
               <span className={`material-symbols-outlined text-[16px] transition-transform ${isAIDropdownOpen ? 'rotate-180' : ''}`}>expand_more</span>
             </button>
             {isAIDropdownOpen && (
               <div ref={dropdownMenuRef} className="absolute right-0 top-full mt-2 w-72 bg-white rounded-xl shadow-2xl border border-slate-200 py-2 z-50 animate-in fade-in slide-in-from-top-2 duration-200">
-                <button onClick={() => { setIsAIModalOpen(true); setIsAIDropdownOpen(false); }} className="w-full px-4 py-3 flex items-center gap-3 hover:bg-blue-50 transition-colors text-left">
+                <button onClick={() => { setIsAIModalOpen(true); setIsAIDropdownOpen(false); }} className="w-full px-4 py-3 flex items-center gap-3 hover:bg-blue-50 transition-colors text-left text-slate-900 font-bold text-sm">
                   <span className="material-symbols-outlined text-blue-500">auto_fix_high</span>
-                  <div>
-                    <p className="text-sm font-bold text-slate-900">Otimizar currículo</p>
-                    <p className="text-[10px] text-slate-500">Ajuste seu CV para uma vaga específica</p>
-                  </div>
+                  Otimizar com IA
                 </button>
-                <button onClick={() => { setIsCoverLetterModalOpen(true); setIsAIDropdownOpen(false); }} className="w-full px-4 py-3 flex items-center gap-3 hover:bg-blue-50 transition-colors text-left">
+                <button onClick={() => { setIsCoverLetterModalOpen(true); setIsAIDropdownOpen(false); }} className="w-full px-4 py-3 flex items-center gap-3 hover:bg-blue-50 transition-colors text-left text-slate-900 font-bold text-sm">
                   <span className="material-symbols-outlined text-blue-500">history_edu</span>
-                  <div>
-                    <p className="text-sm font-bold text-slate-900">Gerar carta de apresentação</p>
-                    <p className="text-[10px] text-slate-500">Crie uma introdução personalizada</p>
-                  </div>
+                  Gerar Carta de Apresentação
                 </button>
               </div>
             )}

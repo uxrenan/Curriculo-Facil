@@ -1,2 +1,2 @@
-// All authentication is managed exclusively by the backend. 
-// This client-side initialization has been removed to satisfy security and architecture requirements.
+// This file is now empty. Authentication is managed strictly by the backend.
+export {};
