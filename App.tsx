@@ -17,7 +17,7 @@ const App: React.FC = () => {
   const [savedTemplates, setSavedTemplates] = useState<SavedResume[]>([]);
   const [isInitializing, setIsInitializing] = useState(true);
   const [loginIsRegistering, setLoginIsRegistering] = useState(false);
-  
+
   const [isDownloading, setIsDownloading] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
   const [isAIModalOpen, setIsAIModalOpen] = useState(false);
@@ -28,32 +28,50 @@ const App: React.FC = () => {
   const [isGenerating, setIsGenerating] = useState(false);
   const [loginMessage, setLoginMessage] = useState('');
   const [aiForm, setAiForm] = useState({ company: '', role: '', description: '' });
-  
+
   const dropdownTriggerRef = useRef<HTMLButtonElement>(null);
   const dropdownMenuRef = useRef<HTMLDivElement>(null);
 
   const [viewMode, setViewMode] = useState<'edit' | 'preview'>('edit');
 
   useEffect(() => {
-    // Revalidation with the backend on page load.
-    const checkSession = async () => {
-      try {
-        const response = await fetch('/api/auth/me');
-        if (response.ok) {
-          const userData = await response.json();
-          setUser(userData);
+    // Initialize Supabase auth state
+    const initAuth = async () => {
+      const { supabase } = await import('./lib/supabase');
+
+      // Check current session
+      const { data: { user } } = await supabase.auth.getUser();
+
+      if (user) {
+        setUser({
+          id: user.id,
+          email: user.email || '',
+          name: user.user_metadata?.name || user.email?.split('@')[0] || 'Usuário'
+        });
+      }
+
+      setIsInitializing(false);
+
+      // Listen for auth state changes
+      const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+        if (session?.user) {
+          setUser({
+            id: session.user.id,
+            email: session.user.email || '',
+            name: session.user.user_metadata?.name || session.user.email?.split('@')[0] || 'Usuário'
+          });
         } else {
           setUser(null);
         }
-      } catch (err) {
-        setUser(null);
-      } finally {
-        setIsInitializing(false);
-      }
+      });
+
+      return () => {
+        subscription.unsubscribe();
+      };
     };
 
-    checkSession();
-    
+    initAuth();
+
     // Draft and local templates loading
     const savedData = localStorage.getItem('sc_resume_draft');
     if (savedData) {
@@ -114,7 +132,8 @@ const App: React.FC = () => {
 
   const handleLogout = async () => {
     try {
-      await fetch('/api/auth/logout', { method: 'POST' });
+      const { supabase } = await import('./lib/supabase');
+      await supabase.auth.signOut();
     } finally {
       setUser(null);
       setView('builder');
@@ -268,13 +287,13 @@ const App: React.FC = () => {
           <div className="flex items-center gap-[8px] md:gap-[12px] cursor-pointer transition-transform active:scale-95 select-none" onClick={handleLogoClick}>
             <div className="text-blue-600">
               <svg viewBox="0 0 512 512" width="32" height="32" className="md:w-[38px] md:h-[38px] drop-shadow-sm">
-                <path fill="currentColor" d="M140 40h240v64h64v320H140z" opacity=".15"/>
-                <path fill="currentColor" d="M100 80h240v64h64v320H100z" opacity=".3"/>
-                <rect x="60" y="120" width="300" height="360" rx="24" fill="currentColor"/>
+                <path fill="currentColor" d="M140 40h240v64h64v320H140z" opacity=".15" />
+                <path fill="currentColor" d="M100 80h240v64h64v320H100z" opacity=".3" />
+                <rect x="60" y="120" width="300" height="360" rx="24" fill="currentColor" />
                 <text x="120" y="270" fill="white" fontFamily="Arial" fontWeight="900" fontSize="110">CV</text>
-                <rect x="120" y="315" width="180" height="18" rx="9" fill="white"/>
-                <rect x="120" y="355" width="180" height="18" rx="9" fill="white"/>
-                <rect x="120" y="395" width="120" height="18" rx="9" fill="white"/>
+                <rect x="120" y="315" width="180" height="18" rx="9" fill="white" />
+                <rect x="120" y="355" width="180" height="18" rx="9" fill="white" />
+                <rect x="120" y="395" width="120" height="18" rx="9" fill="white" />
               </svg>
             </div>
             <h2 className="text-slate-900 font-bold text-lg md:text-2xl leading-none flex items-baseline font-geist tracking-tight">
@@ -346,12 +365,12 @@ const App: React.FC = () => {
             <Preview data={data} onSave={handleSaveProject} isSaving={isSaving} onDownload={handleDownloadPDF} isDownloading={isDownloading} />
           </div>
           <div className="lg:hidden fixed bottom-6 left-1/2 -translate-x-1/2 flex bg-white/90 backdrop-blur shadow-2xl rounded-full p-1 border border-slate-200 z-40 ring-1 ring-black/5 animate-fade-in-up delay-400">
-             <button onClick={() => setViewMode('edit')} className={`flex items-center gap-2 px-6 py-2.5 rounded-full text-xs font-bold transition-all ${viewMode === 'edit' ? 'bg-blue-600 text-white shadow-lg' : 'text-slate-500'}`}>
-               <span className="material-symbols-outlined text-[18px]">edit</span> EDITOR
-             </button>
-             <button onClick={() => setViewMode('preview')} className={`flex items-center gap-2 px-6 py-2.5 rounded-full text-xs font-bold transition-all ${viewMode === 'preview' ? 'bg-blue-600 text-white shadow-lg' : 'text-slate-500'}`}>
-               <span className="material-symbols-outlined text-[18px]">visibility</span> PRÉVIA
-             </button>
+            <button onClick={() => setViewMode('edit')} className={`flex items-center gap-2 px-6 py-2.5 rounded-full text-xs font-bold transition-all ${viewMode === 'edit' ? 'bg-blue-600 text-white shadow-lg' : 'text-slate-500'}`}>
+              <span className="material-symbols-outlined text-[18px]">edit</span> EDITOR
+            </button>
+            <button onClick={() => setViewMode('preview')} className={`flex items-center gap-2 px-6 py-2.5 rounded-full text-xs font-bold transition-all ${viewMode === 'preview' ? 'bg-blue-600 text-white shadow-lg' : 'text-slate-500'}`}>
+              <span className="material-symbols-outlined text-[18px]">visibility</span> PRÉVIA
+            </button>
           </div>
         </main>
       ) : view === 'login' ? (
