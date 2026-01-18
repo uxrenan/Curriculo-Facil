@@ -360,22 +360,6 @@ const App: React.FC = () => {
             <span className="hidden md:inline">Meus templates</span>
           </button>
 
-          <button 
-            onClick={handleDownloadPDF}
-            disabled={isDownloading}
-            title="Baixar em PDF"
-            className={`flex items-center gap-2 p-2 md:px-5 md:py-2 rounded-lg text-sm font-bold shadow-lg transition-all active:scale-95 ${
-              isDownloading 
-              ? 'bg-slate-400 text-white cursor-not-allowed' 
-              : 'bg-blue-600 text-white shadow-blue-500/30 hover:bg-blue-700'
-            }`}
-          >
-            <span className={`material-symbols-outlined text-[18px] md:text-[20px] ${isDownloading ? 'animate-spin' : ''}`}>
-              {isDownloading ? 'sync' : 'download'}
-            </span>
-            <span className="hidden md:inline">{isDownloading ? 'Gerando...' : 'Baixar PDF'}</span>
-          </button>
-
           {/* User Section in Header - Moved to Far Right */}
           {user ? (
             <div className="flex items-center gap-2 md:gap-3 group relative cursor-pointer ml-1 md:ml-2">
@@ -388,13 +372,22 @@ const App: React.FC = () => {
               </div>
             </div>
           ) : (
-            <button 
-              onClick={() => { setPostLoginView('builder'); setView('login'); }}
-              className="flex items-center gap-2 px-3 py-2 md:px-4 md:py-2 rounded-lg text-xs font-bold text-slate-700 border border-slate-200 bg-white hover:bg-slate-50 transition-all active:scale-95 ml-1 md:ml-2"
-            >
-              <span className="material-symbols-outlined text-[18px]">login</span>
-              <span className="hidden sm:inline">ENTRAR</span>
-            </button>
+            <div className="flex items-center gap-2 ml-1 md:ml-2">
+              <button 
+                onClick={() => { setPostLoginView('builder'); setView('login'); }}
+                className="flex items-center gap-2 px-4 py-2 rounded-lg text-xs font-bold text-blue-600 border border-blue-100 bg-blue-50 hover:bg-blue-100 transition-all active:scale-95"
+              >
+                <span className="material-symbols-outlined text-[18px]">login</span>
+                <span className="hidden sm:inline">ENTRAR</span>
+              </button>
+              <button 
+                onClick={() => { setPostLoginView('builder'); setView('login'); }}
+                className="flex items-center gap-2 px-4 py-2 rounded-lg text-xs font-bold text-white bg-blue-600 hover:bg-blue-700 transition-all active:scale-95 shadow-sm"
+              >
+                <span className="hidden sm:inline">CRIAR CONTA</span>
+                <span className="sm:hidden material-symbols-outlined text-[18px]">person_add</span>
+              </button>
+            </div>
           )}
         </div>
       </header>
@@ -411,7 +404,13 @@ const App: React.FC = () => {
                  <p className="text-xs font-bold text-slate-800">A4 Padrão</p>
               </div>
             </div>
-            <Preview data={data} onSave={handleSaveProject} isSaving={isSaving} />
+            <Preview 
+              data={data} 
+              onSave={handleSaveProject} 
+              isSaving={isSaving} 
+              onDownload={handleDownloadPDF}
+              isDownloading={isDownloading}
+            />
           </div>
 
           {/* Mobile Bottom Navigation */}
